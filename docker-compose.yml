@@ -1,0 +1,21 @@
+services:
+    app:
+        container_name: simulator_outstation_dnp3
+        hostname: simulator_outstation_dnp3
+        image: simulator_outstation_dnp3
+        environment:
+            - SPRING_PROFILES_ACTIVE
+        build:
+            context: .
+            dockerfile: DOCKERFILE
+        ports:
+            - "18090:18090"
+            - "20000:20000"
+        networks:
+            - app-tier
+        volumes:
+            - /home/docker-container-logs/simulator_outstation_dnp3:/app/logs
+
+networks:
+    app-tier:
+        external: true

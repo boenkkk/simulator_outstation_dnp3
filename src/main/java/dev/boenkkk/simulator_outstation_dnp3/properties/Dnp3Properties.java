@@ -1,0 +1,17 @@
+package dev.boenkkk.simulator_outstation_dnp3.properties;
+
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@Data
+@ConfigurationProperties("app.dnp3")
+public class Dnp3Properties {
+
+    private int outstationId;
+    private String outstationName;
+    private String outstationNetworkInterface;
+    private String outstationProtocol;
+
+    private int keepAliveTimeout;
+    private int numCoreThreads;
+}

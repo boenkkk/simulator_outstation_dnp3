@@ -74,10 +74,10 @@ public class ServerService {
                 ushort(maxEventBuffer) // octet string
             )
         ).withKeepAliveTimeout(Duration.ofSeconds(dnp3Properties.getKeepAliveTimeout()));
-        outstationConfig.decodeLevel.application = AppDecodeLevel.NOTHING;
+        outstationConfig.decodeLevel.application = AppDecodeLevel.OBJECT_VALUES;
         outstationConfig.decodeLevel.transport = TransportDecodeLevel.NOTHING;
         outstationConfig.decodeLevel.link = LinkDecodeLevel.NOTHING;
-        outstationConfig.decodeLevel.physical = PhysDecodeLevel.DATA;
+        outstationConfig.decodeLevel.physical = PhysDecodeLevel.NOTHING;
         // ANCHOR_END: outstation_config
 
         // ANCHOR: tcp_server_add_outstation

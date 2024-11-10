@@ -2,15 +2,18 @@
 <Configuration status="INFO">
     <Appenders>
         <Console name="LogToConsole" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %c.%M:%L - %m%n"/>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %c{1.}.%M:%L - %m%n"/>
         </Console>
 
-        <RollingFile name="LogDaily" fileName="logs/app.log" filePattern="logs/app_%d{yyyyMMdd}.log" append="true">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %c.%M:%L - %m%n"/>
+        <!--
+        TODO: uncomment to enable rolling log
+         -->
+        <!-- <RollingFile name="LogDaily" fileName="logs/app.log" filePattern="logs/app_%d{yyyyMMdd}.log" append="false">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %c{1.}.%M:%L - %m%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
             </Policies>
-        </RollingFile>
+        </RollingFile> -->
     </Appenders>
 
     <Loggers>

@@ -54,14 +54,13 @@ public class SchedulerTask {
         UShort index = getRandomIndex();
 
         outstation.transaction(db -> {
-            db.updateBinaryInput(new BinaryInput(index, getRandomBoolean(), onlineFlags, TimeUtil.now()), detectEvent);
-            db.updateDoubleBitBinaryInput(new DoubleBitBinaryInput(
-                index, getRandomBoolean() ? DoubleBit.DETERMINED_ON : DoubleBit.DETERMINED_OFF, onlineFlags, TimeUtil.now()), detectEvent);
             // db.updateBinaryOutputStatus(new BinaryOutputStatus(index, getRandomBoolean(), onlineFlags, TimeUtil.now()), detectEvent);
+            // db.updateAnalogOutputStatus(new AnalogOutputStatus(index, getRandomDouble(0.0, 100.0), onlineFlags, TimeUtil.now()), detectEvent);
+            db.updateBinaryInput(new BinaryInput(index, getRandomBoolean(), onlineFlags, TimeUtil.now()), detectEvent);
+            db.updateDoubleBitBinaryInput(new DoubleBitBinaryInput(index, getRandomBoolean() ? DoubleBit.DETERMINED_ON : DoubleBit.DETERMINED_OFF, onlineFlags, TimeUtil.now()), detectEvent);
             db.updateCounter(new Counter(index, uint(getRandomLong(0, 1000)), onlineFlags, TimeUtil.now()), detectEvent);
             db.updateFrozenCounter(new FrozenCounter(index, uint(getRandomLong(0, 1000)), onlineFlags, TimeUtil.now()), detectEvent);
             db.updateAnalogInput(new AnalogInput(index, getRandomDouble(0.0, 100.0), onlineFlags, TimeUtil.now()), detectEvent);
-            db.updateAnalogOutputStatus(new AnalogOutputStatus(index, getRandomDouble(0.0, 100.0), onlineFlags, TimeUtil.now()), detectEvent);
 
             List<UByte> octetString = new ArrayList<>();
             for (byte octet : "Hello".getBytes(StandardCharsets.US_ASCII)) {

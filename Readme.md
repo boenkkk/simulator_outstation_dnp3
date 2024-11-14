@@ -23,6 +23,24 @@ mvn clean spring-boot:run
 mvn clean package
 ```
 
+- Deploy Using Docker Compose (Single Container)
+
+```
+docker compose up --build -d
+```
+
+- Replicate Docker Container (Multiple Container)
+
+```
+chmod +x scale-container.sh
+```
+```
+./scale-container.sh
+```
+```
+sh scale-container.sh
+```
+
 ## Help
 
 If has errors
@@ -68,7 +86,7 @@ example:
 
 ## Authors
 
-- [PLN Icon Plus](https://plniconplus.co.id/)
+- [Budi Santoso](https://blog.boenkkk.dev/)
 
 ## Acknowledgments
 

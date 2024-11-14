@@ -3,7 +3,7 @@
 # Base variables
 BASE_NAME="simulator_outstation_dnp3"
 NUM_CONTAINERS=3
-NETWORK="app-tier"  # Adjust if network differs
+NETWORK="scada-network"  # Adjust if network differs
 DOCKERFILE_PATH="."  # Adjust if Dockerfile is in a different directory
 
 # Step 1: Build the Docker image

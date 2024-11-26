@@ -23,3 +23,7 @@ body {
     margin-left: 250px;
     padding: 20px;
 }
+.row {
+    margin-right: -10px;
+    margin-left: -10px;
+}

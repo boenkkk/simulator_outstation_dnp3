@@ -74,7 +74,7 @@ public class ServerService {
                 ushort(maxEventBuffer) // octet string
             )
         ).withKeepAliveTimeout(Duration.ofSeconds(dnp3Properties.getKeepAliveTimeout()));
-        outstationConfig.decodeLevel.application = AppDecodeLevel.OBJECT_VALUES;
+        outstationConfig.decodeLevel.application = AppDecodeLevel.NOTHING;
         outstationConfig.decodeLevel.transport = TransportDecodeLevel.NOTHING;
         outstationConfig.decodeLevel.link = LinkDecodeLevel.NOTHING;
         outstationConfig.decodeLevel.physical = PhysDecodeLevel.NOTHING;
@@ -97,12 +97,11 @@ public class ServerService {
 
         // Setup initial points
         // ANCHOR: database_init
-        // outstation.transaction(DatabaseConfigImpl::initializeDatabase);
         outstation.transaction(DatabaseConfigImpl::initializeDatabaseDefault);
         // ANCHOR_END: database_init
 
         // Start the scheduled task to generate random updates
-        schedulerTask.startScheduledTask(outstation);
+        // schedulerTask.startScheduledTask(outstation);
 
         // automaticly started channel
         outstation.enable();
@@ -116,27 +115,6 @@ public class ServerService {
                 .outstation(outstation)
                 .build()
         );
-        outstationsService.registerBean(outstationBean);
-    }
-
-    public void enable(String address){
-        log.info("enpoint: {}", address);
-        Optional.ofNullable(outstationsService.getOutstation(address))
-            .ifPresent(Outstation::enable);
-    }
-
-    public void disable(String address){
-        log.info("endpoint: {}", address);
-        Optional.ofNullable(outstationsService.getOutstation(address))
-            .ifPresent(Outstation::disable);
-    }
-
-    public void shutdown(String address){
-        log.info("shutdown: {}", address);
-        OutstationBean outstationBean = outstationsService.getInstance();
-        Map<String, OutstationData> outstationDataMap = outstationBean.getData();
-        outstationDataMap.get(address).getOutstationServer().shutdown();
-        outstationDataMap.remove(address);
         outstationsService.registerBean(outstationBean);
     }
 }

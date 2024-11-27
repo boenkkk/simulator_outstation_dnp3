@@ -172,28 +172,22 @@
             socketTapChanger = io(socketEndpoint + "/tap-changer");
 
             socketTapChanger.on("connect", function () {
-                console.log("connected");
                 socketTapChanger.emit("get-data");
             });
 
             socketTapChanger.on("disconnect", function () {
-                console.log("disconnected");
             });
 
             socketTapChanger.on("listen", function (data) {
-                console.log("listen: ",data);
                 valueTapChanger = data;
-                console.log("valueTapChanger: ",valueTapChanger);
                 $("#number-display").text(valueTapChanger);
             });
 
             socketTapChanger.on("connect_error", function (error) {
-                console.log("error: ",error);
             });
         }
 
         function updateTapChanger(index) {
-            console.log("index: ",index);
             socketTapChanger.emit("update-data", index);
         }
     </script>

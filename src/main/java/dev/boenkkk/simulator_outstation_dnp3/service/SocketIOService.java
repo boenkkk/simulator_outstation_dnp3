@@ -18,6 +18,9 @@ public class SocketIOService {
     @Autowired
     private SocketIONamespace cbOpenCloseNamespace;
 
+    @Autowired
+    private SocketIONamespace tapChangerNamespace;
+
     private SocketIONamespace getNamespace(String namespace) {
         switch (namespace) {
             case "/local-remote" -> {
@@ -25,6 +28,9 @@ public class SocketIOService {
             }
             case "/cb-open-close" -> {
                 return cbOpenCloseNamespace;
+            }
+            case "/tap-changer" -> {
+                return tapChangerNamespace;
             }
             default -> {
                 return null;

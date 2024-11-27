@@ -72,4 +72,9 @@ public class SocketIOConfig {
     public SocketIONamespace cbOpenCloseNamespace(SocketIOServer server) {
         return server.addNamespace("/cb-open-close");
     }
+
+    @Bean
+    public SocketIONamespace tapChangerNamespace(SocketIOServer server) {
+        return server.addNamespace("/tap-changer");
+    }
 }

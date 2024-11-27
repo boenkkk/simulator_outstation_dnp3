@@ -37,6 +37,24 @@
                     </div>
                 </div>
             </div>
+
+            <div class="tap-changer group-border col-md-4">
+                <h5>Tap Changerr</h5>
+                <div class="number-adjust-container" style="text-align: center; margin: 20px;">
+                    <div style="display: inline-block; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+                        <!-- Display the number -->
+                        <div id="number-display" style="font-size: 36px; font-weight: bold; margin-bottom: 10px;">0</div>
+
+                        <!-- Buttons for adjusting the number -->
+                        <button id="btn-decrease" class="adjust-button btn btn-danger" style="margin: 5px;" onclick="updateTapChanger(0)">
+                            Down
+                        </button>
+                        <button id="btn-increase" class="adjust-button btn btn-success" style="margin: 5px;" onclick="updateTapChanger(1)">
+                            Up
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -45,6 +63,7 @@
         $(document).ready(function () {
             connectToSocketLocalRemote();
             connectToSocketCBOpenClose();
+            connectToSocketTapChanger();
         });
 
         // local-remote
@@ -144,6 +163,38 @@
 
                 socketCBOpenClose.emit("update-data", true);
             }
+        }
+
+        // tap-changer
+        let socketTapChanger = 0;
+        let valueTapChanger;
+        function connectToSocketTapChanger() {
+            socketTapChanger = io(socketEndpoint + "/tap-changer");
+
+            socketTapChanger.on("connect", function () {
+                console.log("connected");
+                socketTapChanger.emit("get-data");
+            });
+
+            socketTapChanger.on("disconnect", function () {
+                console.log("disconnected");
+            });
+
+            socketTapChanger.on("listen", function (data) {
+                console.log("listen: ",data);
+                valueTapChanger = data;
+                console.log("valueTapChanger: ",valueTapChanger);
+                $("#number-display").text(valueTapChanger);
+            });
+
+            socketTapChanger.on("connect_error", function (error) {
+                console.log("error: ",error);
+            });
+        }
+
+        function updateTapChanger(index) {
+            console.log("index: ",index);
+            socketTapChanger.emit("update-data", index);
         }
     </script>
 </div>

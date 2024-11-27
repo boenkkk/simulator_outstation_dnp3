@@ -4,6 +4,10 @@
             width: 150px;
             height: 70px;
         }
+        .fixed-wh-5em{
+            width: 5em;
+            height: 5em;
+        }
     </style>
 
     <div class="main-content">
@@ -36,20 +40,9 @@
                     <button id="btn-cb-open" class="custom-button btn btn-secondary">OPEN</button>
                     <button id="btn-cb-close" class="custom-button btn btn-danger">CLOSE</button>
                 </div>
-
                 <div class="row justify-content-center">
-                    <div class="control-knob dark">
-                        <input type="checkbox" id="checkbox-cb-open-close" onclick="updateCBOpenClose()">
-                        <div class="control-position on">
-                            <span>On</span>
-                        </div>
-                        <div class="control-position off">
-                            <span>Off</span>
-                        </div>
-                        <div class="knob">
-                            <div class="knob-center"></div>
-                        </div>
-                    </div>
+                    <button id="a" class="btn btn-success rounded-circle fixed-wh-5em" onclick="updateCBOpenClose(true)"></button>
+                    <button id="b" class="btn btn-danger rounded-circle fixed-wh-5em" onclick="updateCBOpenClose(false)"></button>
                 </div>
             </div>
 
@@ -95,7 +88,7 @@
             });
 
             socketLocalRemote.on("listen", function (data) {
-                if (data){
+                if (data) {
                     valueLocalRemote = data;
                     $("#btn-local-remote").text("REMOTE");
                     $("#btn-local-remote").removeClass("btn-danger");
@@ -144,14 +137,12 @@
             socketCBOpenClose.on("listen", function (data) {
                 if (data){
                     valueCBOpenClose = data;
-                    $("#checkbox-cb-open-close").attr("checked", false);
                     $("#btn-cb-open").removeClass("btn-secondary");
                     $("#btn-cb-open").addClass("btn-success");
                     $("#btn-cb-close").removeClass("btn-danger");
                     $("#btn-cb-close").addClass("btn-secondary");
                 } else {
                     valueCBOpenClose = data;
-                    $("#checkbox-cb-open-close").attr("checked", true);
                     $("#btn-cb-open").removeClass("btn-success");
                     $("#btn-cb-open").addClass("btn-secondary");
                     $("#btn-cb-close").removeClass("btn-secondary");
@@ -163,22 +154,21 @@
             });
         }
 
-        function updateCBOpenClose() {
-            let cbOpenCloseChecked = $("#checkbox-cb-open-close").is(":checked");
+        function updateCBOpenClose(cbOpenCloseChecked) {
             if (cbOpenCloseChecked) {
                 $("#btn-cb-open").removeClass("btn-success");
                 $("#btn-cb-open").addClass("btn-secondary");
                 $("#btn-cb-close").removeClass("btn-secondary");
                 $("#btn-cb-close").addClass("btn-danger");
 
-                socketCBOpenClose.emit("update-data", false);
+                socketCBOpenClose.emit("update-data", cbOpenCloseChecked);
             } else {
                 $("#btn-cb-open").removeClass("btn-secondary");
                 $("#btn-cb-open").addClass("btn-success");
                 $("#btn-cb-close").removeClass("btn-danger");
                 $("#btn-cb-close").addClass("btn-secondary");
 
-                socketCBOpenClose.emit("update-data", true);
+                socketCBOpenClose.emit("update-data", cbOpenCloseChecked);
             }
         }
 

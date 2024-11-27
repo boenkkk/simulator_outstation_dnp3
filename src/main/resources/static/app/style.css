@@ -33,3 +33,10 @@ body {
     margin-bottom: 15px;
     border-radius: 5px;
 }
+.btn-circle.btn-success {
+    border-color: transparent;
+}
+
+.btn-circle.btn-success:hover {
+    border-color: transparent;
+}

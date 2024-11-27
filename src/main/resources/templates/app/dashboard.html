@@ -8,10 +8,25 @@
 
     <div class="main-content">
         <div class="row">
-            <div class="local-remote group-border col-md-3">
+            <div class="local-remote group-border col-md-4">
                 <h5>Local / Remote</h5>
                 <div class="row justify-content-center">
-                    <button id="btn-local-remote" class="custom-button btn btn-danger" onclick="updateLocalRemote()">LOCAL</button>
+                    <button id="btn-local-remote" class="custom-button btn btn-danger" onclick="">LOCAL</button>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="control-knob dark">
+                        <input type="checkbox" id="checkbox-local-remote" onclick="updateLocalRemote()">
+                        <div class="control-position on">
+                            <span>LOCAL</span>
+                        </div>
+                        <div class="control-position off">
+                            <span>REMOTE</span>
+                        </div>
+                        <div class="knob">
+                            <div class="knob-center"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -85,11 +100,13 @@
                     $("#btn-local-remote").text("REMOTE");
                     $("#btn-local-remote").removeClass("btn-danger");
                     $("#btn-local-remote").addClass("btn-success");
+                    $("#checkbox-local-remote").attr("checked", true);
                 } else {
                     valueLocalRemote = data;
                     $("#btn-local-remote").text("LOCAL");
                     $("#btn-local-remote").removeClass("btn-success");
                     $("#btn-local-remote").addClass("btn-danger");
+                    $("#checkbox-local-remote").attr("checked", false);
                 }
             });
 

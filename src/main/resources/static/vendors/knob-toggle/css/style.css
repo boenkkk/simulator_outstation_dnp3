@@ -30,7 +30,7 @@
   position: relative;
   flex-wrap: wrap;
   justify-content: space-between;
-  width: 100px;
+  /* width: 100px; */
   height: 70px;
   border: 1px solid var(--baseColorBorder);
   border-radius: 3px;

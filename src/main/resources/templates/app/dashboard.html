@@ -1,10 +1,40 @@
 <div th:fragment="content" xmlns:th="http://www.w3.org/1999/xhtml">
+    <style>
+        .custom-button{
+            width: 150px;
+            height: 70px;
+        }
+    </style>
+
     <div class="main-content">
         <div class="row">
             <div class="local-remote group-border col-md-3">
                 <h5>Local / Remote</h5>
                 <div class="row justify-content-center">
                     <button id="btn-local-remote" class="custom-button btn btn-danger" onclick="updateLocalRemote()">LOCAL</button>
+                </div>
+            </div>
+
+            <div class="cb-open-close group-border col-md-4">
+                <h5>CB Open / Close</h5>
+                <div class="row justify-content-center">
+                    <button id="btn-cb-open" class="custom-button btn btn-secondary">OPEN</button>
+                    <button id="btn-cb-close" class="custom-button btn btn-danger">CLOSE</button>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="control-knob dark">
+                        <input type="checkbox" id="checkbox-cb-open-close" onclick="updateCBOpenClose()">
+                        <div class="control-position on">
+                            <span>On</span>
+                        </div>
+                        <div class="control-position off">
+                            <span>Off</span>
+                        </div>
+                        <div class="knob">
+                            <div class="knob-center"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -14,13 +44,14 @@
         let socketEndpoint = "http://localhost:18091";
         $(document).ready(function () {
             connectToSocketLocalRemote();
+            connectToSocketCBOpenClose();
         });
 
         // local-remote
         let socketLocalRemote;
         let valueLocalRemote;
         function connectToSocketLocalRemote() {
-            socketLocalRemote = io(socketEndpoint+"/local-remote");
+            socketLocalRemote = io(socketEndpoint + "/local-remote");
 
             socketLocalRemote.on("connect", function () {
                 socketLocalRemote.emit("get-data");
@@ -58,6 +89,60 @@
                 $("#btn-local-remote").removeClass("btn-danger");
                 $("#btn-local-remote").addClass("btn-success");
                 socketLocalRemote.emit("update-data", true);
+            }
+        }
+
+        // cb open close
+        let socketCBOpenClose;
+        let valueCBOpenClose;
+        function connectToSocketCBOpenClose() {
+            socketCBOpenClose = io(socketEndpoint + "/cb-open-close");
+
+            socketCBOpenClose.on("connect", function () {
+                socketCBOpenClose.emit("get-data");
+            });
+
+            socketCBOpenClose.on("disconnect", function () {
+            });
+
+            socketCBOpenClose.on("listen", function (data) {
+                if (data){
+                    valueCBOpenClose = data;
+                    $("#checkbox-cb-open-close").attr("checked", false);
+                    $("#btn-cb-open").removeClass("btn-secondary");
+                    $("#btn-cb-open").addClass("btn-success");
+                    $("#btn-cb-close").removeClass("btn-danger");
+                    $("#btn-cb-close").addClass("btn-secondary");
+                } else {
+                    valueCBOpenClose = data;
+                    $("#checkbox-cb-open-close").attr("checked", true);
+                    $("#btn-cb-open").removeClass("btn-success");
+                    $("#btn-cb-open").addClass("btn-secondary");
+                    $("#btn-cb-close").removeClass("btn-secondary");
+                    $("#btn-cb-close").addClass("btn-danger");
+                }
+            });
+
+            socketCBOpenClose.on("connect_error", function (error) {
+            });
+        }
+
+        function updateCBOpenClose() {
+            let cbOpenCloseChecked = $("#checkbox-cb-open-close").is(":checked");
+            if (cbOpenCloseChecked) {
+                $("#btn-cb-open").removeClass("btn-success");
+                $("#btn-cb-open").addClass("btn-secondary");
+                $("#btn-cb-close").removeClass("btn-secondary");
+                $("#btn-cb-close").addClass("btn-danger");
+
+                socketCBOpenClose.emit("update-data", false);
+            } else {
+                $("#btn-cb-open").removeClass("btn-secondary");
+                $("#btn-cb-open").addClass("btn-success");
+                $("#btn-cb-close").removeClass("btn-danger");
+                $("#btn-cb-close").addClass("btn-secondary");
+
+                socketCBOpenClose.emit("update-data", true);
             }
         }
     </script>

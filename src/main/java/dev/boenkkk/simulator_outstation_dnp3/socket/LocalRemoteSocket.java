@@ -42,9 +42,9 @@ public class LocalRemoteSocket {
                 client.joinRoom("DEFAULT");
 
                 String message = "Connected to socket";
-                log.info("{}|{}", message, client.getSessionId().toString());
+                log.info("message:{}, client:{}", message, client.getSessionId().toString());
             } catch (Exception e) {
-                log.error(e.getMessage());
+                log.error("error:{}", e.getMessage());
             }
         };
     }
@@ -54,9 +54,9 @@ public class LocalRemoteSocket {
         return client -> {
             try {
                 String message = "Disconnected to socket";
-                log.info("{}|{}", message, client.getSessionId().toString());
+                log.info("message:{}, client:{}", message, client.getSessionId().toString());
             } catch (Exception e) {
-                log.error(e.getMessage());
+                log.error("error:{}", e.getMessage());
             }
         };
     }
@@ -71,10 +71,10 @@ public class LocalRemoteSocket {
                 Boolean binaryInput = datapointService.getBinaryInput(endpoint, index);
                 socketIOService.sendMessageSelf(client, "listen", binaryInput);
 
-                log.info("Message: {}", nameSpace);
+                log.info("namespace:{}, index:{}, binaryInput:{}", nameSpace, index, binaryInput);
             } catch (Exception e) {
                 socketIOService.sendMessageSelf(client, "listen", e.getMessage());
-                log.error(e.getMessage());
+                log.error("error:{}", e.getMessage());
             }
         };
     }
@@ -90,10 +90,10 @@ public class LocalRemoteSocket {
                 Boolean binaryInput = datapointService.getBinaryInput(endpoint, index);
                 socketIOService.sendMessageSelf(client, "listen", binaryInput);
 
-                log.info("Message: {}", nameSpace);
+                log.info("namepace:{}, index:{}, data:{}, binaryInput:{}", nameSpace, index, data, binaryInput);
             } catch (Exception e) {
                 socketIOService.sendMessageSelf(client, "listen", e.getMessage());
-                log.error(e.getMessage());
+                log.error("error:{}", e.getMessage());
             }
         };
     }

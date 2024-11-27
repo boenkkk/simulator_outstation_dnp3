@@ -1,33 +1,10 @@
 <div th:fragment="content" xmlns:th="http://www.w3.org/1999/xhtml">
-    <style>
-        .switch-indicator {
-            padding: 0.5rem;
-            color: white;
-            text-align: center;
-            border-radius: 0.25rem;
-        }
-
-        .bg-on {
-            background-color: green;
-        }
-
-        .bg-off {
-            background-color: red;
-        }
-    </style>
-
     <div class="main-content">
         <div class="row">
-            <div class="local-remote group-border col-md-6">
-                <h1>Local / Remote</h1>
-                <div class="custom-control custom-switch">
-                    <div class="custom-control custom-switch mb-3">
-                        <input type="checkbox" class="custom-control-input" id="customSwitch" onchange="updateLocalRemote()">
-                        <label class="custom-control-label" for="customSwitch">Toggle Switch</label>
-                    </div>
-                    <div id="switchIndicator" class="switch-indicator bg-off">
-                        LOCAL
-                    </div>
+            <div class="local-remote group-border col-md-3">
+                <h5>Local / Remote</h5>
+                <div class="row justify-content-center">
+                    <button id="btn-local-remote" class="custom-button btn btn-danger" onclick="updateLocalRemote()">LOCAL</button>
                 </div>
             </div>
         </div>
@@ -35,62 +12,52 @@
 
     <script>
         let socketEndpoint = "http://localhost:18091";
-        let socket;
         $(document).ready(function () {
             connectToSocketLocalRemote();
         });
 
+        // local-remote
+        let socketLocalRemote;
+        let valueLocalRemote;
         function connectToSocketLocalRemote() {
-            socket = io(socketEndpoint+"/local-remote");
+            socketLocalRemote = io(socketEndpoint+"/local-remote");
 
-            socket.on("connect", function () {
-                console.log("Connected to socket.");
-                socket.emit("get-data");
+            socketLocalRemote.on("connect", function () {
+                socketLocalRemote.emit("get-data");
             });
 
-            socket.on("disconnect", function () {
-                console.log("Disconnected from socket.");
+            socketLocalRemote.on("disconnect", function () {
             });
 
-            socket.on("listen", function (data) {
-                console.log("Data received:", data);
-                const switchInput = document.getElementById("customSwitch");
-                const indicator = document.getElementById("switchIndicator");
-
-                if (data) {
-                    switchInput.checked = true;
-                    indicator.classList.remove("bg-off");
-                    indicator.classList.add("bg-on");
-                    indicator.textContent = "REMOTE";
+            socketLocalRemote.on("listen", function (data) {
+                if (data){
+                    valueLocalRemote = data;
+                    $("#btn-local-remote").text("REMOTE");
+                    $("#btn-local-remote").removeClass("btn-danger");
+                    $("#btn-local-remote").addClass("btn-success");
                 } else {
-                    switchInput.checked = false;
-                    indicator.classList.remove("bg-on");
-                    indicator.classList.add("bg-off");
-                    indicator.textContent = "LOCAL";
+                    valueLocalRemote = data;
+                    $("#btn-local-remote").text("LOCAL");
+                    $("#btn-local-remote").removeClass("btn-success");
+                    $("#btn-local-remote").addClass("btn-danger");
                 }
             });
 
-            socket.on("connect_error", function (error) {
-                console.error("Connection error:", error);
+            socketLocalRemote.on("connect_error", function (error) {
             });
         }
 
         function updateLocalRemote() {
-            const switchInput = document.getElementById("customSwitch");
-            const indicator = document.getElementById("switchIndicator");
-
-            if (switchInput.checked) {
-                indicator.classList.remove("bg-off");
-                indicator.classList.add("bg-on");
-                indicator.textContent = "REMOTE";
-
-                socket.emit("update-data", true);
+            if (valueLocalRemote) {
+                $("#btn-local-remote").text("LOCAL");
+                $("#btn-local-remote").removeClass("btn-success");
+                $("#btn-local-remote").addClass("btn-danger");
+                socketLocalRemote.emit("update-data", false);
             } else {
-                indicator.classList.remove("bg-on");
-                indicator.classList.add("bg-off");
-                indicator.textContent = "LOCAL";
-
-                socket.emit("update-data", false);
+                $("#btn-local-remote").text("REMOTE");
+                $("#btn-local-remote").removeClass("btn-danger");
+                $("#btn-local-remote").addClass("btn-success");
+                socketLocalRemote.emit("update-data", true);
             }
         }
     </script>

@@ -7,6 +7,7 @@ import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import dev.boenkkk.simulator_outstation_dnp3.service.DatabaseService;
+import dev.boenkkk.simulator_outstation_dnp3.service.DatapointService;
 import dev.boenkkk.simulator_outstation_dnp3.service.SocketIOService;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,9 @@ public class TapChangerSocket {
 
     @Autowired
     private DatabaseService databaseService;
+
+    @Autowired
+    private DatapointService datapointService;
 
     @PostConstruct
     public void init() {
@@ -65,13 +69,11 @@ public class TapChangerSocket {
         return (client, data, ackSender) -> {
             try {
                 String nameSpace = client.getNamespace().getName();
-                String endpoint = "0.0.0.0";
-                Integer index = 0;
 
-                Double analogInput = databaseService.getAnalogInput(endpoint, index);
-                socketIOService.sendMessageSelf(client, "listen", analogInput);
+                Double valueTapChanger = datapointService.getValueTapChanger();
+                socketIOService.sendMessageSelf(client, "listen", valueTapChanger);
 
-                log.info("namespace:{}, index:{}, binaryInput:{}", nameSpace, index, analogInput);
+                log.info("namespace:{}, valueTapChanger:{}", nameSpace, valueTapChanger);
             } catch (Exception e) {
                 socketIOService.sendMessageSelf(client, "listen", e.getMessage());
                 log.error("error:{}", e.getMessage());
@@ -83,23 +85,11 @@ public class TapChangerSocket {
         return (client, data, ackSender) -> {
             try {
                 String nameSpace = client.getNamespace().getName();
-                String endpoint = "0.0.0.0";
-                Integer index = data;
 
-                databaseService.updateValueBinaryOutput(endpoint, index, true);
-                Double analogInput = databaseService.getAnalogInput(endpoint, 0);
-                Double updateValue = 0.0;
-                if (data == 1) {
-                    updateValue = analogInput + 1.0;
-                    databaseService.updateValueAnalogInput(endpoint, 0, updateValue);
-                    socketIOService.sendMessageSelf(client, "listen", updateValue);
-                } else if (data == 0) {
-                    updateValue = analogInput - 1.0;
-                    databaseService.updateValueAnalogInput(endpoint, 0, updateValue);
-                    socketIOService.sendMessageSelf(client, "listen", updateValue);
-                }
+                Double valueTapChanger = datapointService.updateValueTapChanger(data);
+                socketIOService.sendMessageSelf(client, "listen", valueTapChanger);
 
-                log.info("namepace:{}, index:{}, data:{}, analogInput:{}, updatedValue:{}", nameSpace, index, data, analogInput, updateValue);
+                log.info("namepace:{}, data:{}, valueTapChanger:{}", nameSpace, data, valueTapChanger);
             } catch (Exception e) {
                 socketIOService.sendMessageSelf(client, "listen", e.getMessage());
                 log.error("error:{}", e.getMessage());

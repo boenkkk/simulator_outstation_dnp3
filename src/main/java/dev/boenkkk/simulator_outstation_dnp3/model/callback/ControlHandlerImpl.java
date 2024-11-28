@@ -1,5 +1,7 @@
 package dev.boenkkk.simulator_outstation_dnp3.model.callback;
 
+import dev.boenkkk.simulator_outstation_dnp3.service.DatapointService;
+import dev.boenkkk.simulator_outstation_dnp3.service.SocketIOService;
 import dev.boenkkk.simulator_outstation_dnp3.util.TimeUtil;
 import io.stepfunc.dnp3.*;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +12,15 @@ import static org.joou.Unsigned.ushort;
 // ANCHOR: control_handler
 @Slf4j
 public class ControlHandlerImpl implements ControlHandler {
+
+    // TODO:
+    // NOTE: it use constructor injection coz cant be using DI
+    private final DatapointService datapointService;
+    private final SocketIOService socketIOService;
+    public ControlHandlerImpl(DatapointService datapointService, SocketIOService socketIOService) {
+        this.datapointService = datapointService;
+        this.socketIOService = socketIOService;
+    }
 
     @Override
     public void beginFragment() {
@@ -40,24 +51,49 @@ public class ControlHandlerImpl implements ControlHandler {
 
     @Override
     public CommandStatus operateG12v1(Group12Var1 group12Var1, UShort index, OperateType opType, DatabaseHandle databaseHandle) {
-        CommandStatus commandStatus;
-        if (index.compareTo(ushort(10)) < 0 && (group12Var1.code.opType == OpType.LATCH_ON || group12Var1.code.opType == OpType.LATCH_OFF)) {
-            boolean status = group12Var1.code.opType == OpType.LATCH_ON;
-            databaseHandle.transaction(
-                db -> db.updateBinaryOutputStatus(
-                    new BinaryOutputStatus(index, status, new Flags(Flag.ONLINE), TimeUtil.now()),
-                    UpdateOptions.detectEvent()
-                )
-            );
-            commandStatus = CommandStatus.SUCCESS;
-        } else {
-            commandStatus = CommandStatus.NOT_SUPPORTED;
+        CommandStatus commandStatus = null;
+        try {
+            if (group12Var1.code.opType == OpType.LATCH_ON || group12Var1.code.opType == OpType.LATCH_OFF) {
+                boolean value = group12Var1.code.opType == OpType.LATCH_ON;
+                switch (index.intValue()) {
+                    case 0 -> {
+                        Boolean valueCBOpenClose = datapointService.updateCBOpenClose(value);
+                        socketIOService.broadcastToDefaultRoom("/cb-open-close", "listen", valueCBOpenClose);
+                        commandStatus = CommandStatus.SUCCESS;
+                    }
+                    case 1 -> {
+                        if (value) {
+                            Double valueTapChanger = datapointService.updateValueTapChanger(index.intValue());
+                            socketIOService.broadcastToDefaultRoom("/tap-changer", "listen", valueTapChanger);
+                            commandStatus = CommandStatus.SUCCESS;
+                        } else {
+                            commandStatus = CommandStatus.NOT_SUPPORTED;
+                        }
+                    }
+                    case 2 -> {
+                        log.info("2");
+                        if (value) {
+                            Double valueTapChanger = datapointService.updateValueTapChanger(index.intValue());
+                            socketIOService.broadcastToDefaultRoom("/tap-changer", "listen", valueTapChanger);
+                            commandStatus = CommandStatus.SUCCESS;
+                        } else {
+                            commandStatus = CommandStatus.NOT_SUPPORTED;
+                        }
+                    }
+                    default -> commandStatus = CommandStatus.NOT_SUPPORTED;
+                }
+            } else {
+                commandStatus = CommandStatus.NOT_SUPPORTED;
+            }
+
+            return commandStatus;
+        } catch (Exception e){
+            log.error(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        } finally {
+            String message = "operateG12v1 group12Var1:" + group12Var1 + ", index:" + index + ", opType:" + opType + ", databaseHandle:" + databaseHandle + ", commandStatus:" + commandStatus;
+            log.info(message);
         }
-
-        String message = "operateG12v1 group12Var1:"+group12Var1+", index:"+index+", opType:"+opType+", databaseHandle:"+databaseHandle+", commandStatus:"+commandStatus;
-        log.info(message);
-
-        return commandStatus;
     }
 
     @Override

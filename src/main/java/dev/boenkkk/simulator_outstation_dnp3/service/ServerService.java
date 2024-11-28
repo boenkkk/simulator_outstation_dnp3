@@ -10,7 +10,6 @@ import dev.boenkkk.simulator_outstation_dnp3.model.callback.OutstationInformatio
 import dev.boenkkk.simulator_outstation_dnp3.config.DatabaseConfigImpl;
 import dev.boenkkk.simulator_outstation_dnp3.model.RuntimeChannel;
 import dev.boenkkk.simulator_outstation_dnp3.properties.Dnp3Properties;
-import dev.boenkkk.simulator_outstation_dnp3.scheduler.SchedulerTask;
 import dev.boenkkk.simulator_outstation_dnp3.util.JsonUtil;
 import io.stepfunc.dnp3.*;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.Map;
-import java.util.Optional;
 
 import static org.joou.Unsigned.ushort;
 
@@ -38,10 +35,13 @@ public class ServerService {
     private OutstationsService outstationsService;
 
     @Autowired
-    private SchedulerTask schedulerTask;
+    private JsonUtil jsonUtil;
 
     @Autowired
-    private JsonUtil jsonUtil;
+    private DatapointService datapointService;
+
+    @Autowired
+    private SocketIOService socketIOService;
 
     public void addServer(Dnp3ServerOutstationModel dnp3ServerOutstation){
         log.info(dnp3ServerOutstation.toString());
@@ -85,7 +85,7 @@ public class ServerService {
             outstationConfig,
             new OutstationApplicationImpl(jsonUtil),
             new OutstationInformationImpl(),
-            new ControlHandlerImpl(),
+            new ControlHandlerImpl(datapointService, socketIOService),
             new ConnectionStateListenerImpl(dnp3Properties),
             AddressFilter.any()
         );

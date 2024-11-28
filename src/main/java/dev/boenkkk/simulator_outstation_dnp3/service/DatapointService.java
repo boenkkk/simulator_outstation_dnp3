@@ -35,4 +35,29 @@ public class DatapointService {
             throw new Exception(e.getMessage());
         }
     }
+
+    public Boolean getValueCBOpenClose() throws Exception {
+        try {
+            String endpoint = "0.0.0.0";
+            Integer index = 1;
+
+            return databaseService.getBinaryInput(endpoint, index);
+        } catch (Exception e) {
+            log.error("error:{}", e.getMessage());
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    public Boolean updateCBOpenClose(Boolean value) throws Exception{
+        try {
+            String endpoint = "0.0.0.0";
+            Integer index = 1;
+
+            databaseService.updateValueBinaryInput(endpoint, index, value);
+            return databaseService.getBinaryInput(endpoint, index);
+        } catch (Exception e) {
+            log.error("error:{}", e.getMessage());
+            throw new Exception(e.getMessage());
+        }
+    }
 }

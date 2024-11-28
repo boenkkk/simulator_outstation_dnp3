@@ -68,7 +68,10 @@
 
     <script>
         $(function () {
-            let socketEndpoint = "http://localhost:18091";
+            // Determine the base URL dynamically
+            let baseURL = `${window.location.protocol}//${window.location.hostname}`;
+            let socketPort = 47772;
+            let socketEndpoint = `${baseURL}:${socketPort}`;
 
             // start local-remote
             let socketLocalRemote = io(socketEndpoint + "/local-remote");
@@ -199,7 +202,6 @@
             });
             // end tap-changer
 
-            console.log("valueLocalRemote: ", valueLocalRemote);
             // disable all button
             function disableAllButton(value) {
                 if (value){

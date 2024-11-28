@@ -6,7 +6,7 @@ import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
-import dev.boenkkk.simulator_outstation_dnp3.service.DatabaseService;
+import dev.boenkkk.simulator_outstation_dnp3.service.DatapointService;
 import dev.boenkkk.simulator_outstation_dnp3.service.SocketIOService;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ public class LocalRemoteSocket {
     private SocketIOService socketIOService;
 
     @Autowired
-    private DatabaseService databaseService;
+    private DatapointService datapointService;
 
     @PostConstruct
     public void init() {
@@ -65,13 +65,11 @@ public class LocalRemoteSocket {
         return (client, data, ackSender) -> {
             try {
                 String nameSpace = client.getNamespace().getName();
-                String endpoint = "0.0.0.0";
-                Integer index = 0;
 
-                Boolean binaryInput = databaseService.getBinaryInput(endpoint, index);
-                socketIOService.sendMessageSelf(client, "listen", binaryInput);
+                Boolean valueLocalRemote = datapointService.getValueLocalRemote();
+                socketIOService.sendMessageSelf(client, "listen", valueLocalRemote);
 
-                log.info("namespace:{}, index:{}, binaryInput:{}", nameSpace, index, binaryInput);
+                log.info("namespace:{}, valueLocalRemote:{}", nameSpace, valueLocalRemote);
             } catch (Exception e) {
                 socketIOService.sendMessageSelf(client, "listen", e.getMessage());
                 log.error("error:{}", e.getMessage());
@@ -83,14 +81,12 @@ public class LocalRemoteSocket {
         return (client, data, ackSender) -> {
             try {
                 String nameSpace = client.getNamespace().getName();
-                String endpoint = "0.0.0.0";
-                Integer index = 0;
+                datapointService.updateLocalRemote(data);
 
-                databaseService.updateValueBinaryInput(endpoint, index, data);
-                Boolean binaryInput = databaseService.getBinaryInput(endpoint, index);
-                socketIOService.sendMessageSelf(client, "listen", binaryInput);
+                Boolean valueLocalRemote = datapointService.updateLocalRemote(data);
+                socketIOService.sendMessageSelf(client, "listen", valueLocalRemote);
 
-                log.info("namepace:{}, index:{}, data:{}, binaryInput:{}", nameSpace, index, data, binaryInput);
+                log.info("namepace:{}, data:{}, valueLocalRemote:{}", nameSpace, data, valueLocalRemote);
             } catch (Exception e) {
                 socketIOService.sendMessageSelf(client, "listen", e.getMessage());
                 log.error("error:{}", e.getMessage());

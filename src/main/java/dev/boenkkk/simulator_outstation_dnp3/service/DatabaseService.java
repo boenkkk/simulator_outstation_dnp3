@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @Slf4j
-public class DatapointService {
+public class DatabaseService {
 
     @Autowired
     private OutstationsService outstationsService;

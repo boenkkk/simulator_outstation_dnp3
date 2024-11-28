@@ -6,7 +6,7 @@ import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
-import dev.boenkkk.simulator_outstation_dnp3.service.DatapointService;
+import dev.boenkkk.simulator_outstation_dnp3.service.DatabaseService;
 import dev.boenkkk.simulator_outstation_dnp3.service.SocketIOService;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ public class CBOpenCloseSocket {
     private SocketIOService socketIOService;
 
     @Autowired
-    private DatapointService datapointService;
+    private DatabaseService databaseService;
 
     @PostConstruct
     public void init() {
@@ -68,7 +68,7 @@ public class CBOpenCloseSocket {
                 String endpoint = "0.0.0.0";
                 Integer index = 1;
 
-                Boolean binaryInput = datapointService.getBinaryInput(endpoint, index);
+                Boolean binaryInput = databaseService.getBinaryInput(endpoint, index);
                 socketIOService.sendMessageSelf(client, "listen", binaryInput);
 
                 log.info("namespace:{}, index:{}, binaryInput:{}", nameSpace, index, binaryInput);
@@ -86,8 +86,8 @@ public class CBOpenCloseSocket {
                 String endpoint = "0.0.0.0";
                 Integer index = 1;
 
-                datapointService.updateValueBinaryInput(endpoint, index, data);
-                Boolean binaryInput = datapointService.getBinaryInput(endpoint, index);
+                databaseService.updateValueBinaryInput(endpoint, index, data);
+                Boolean binaryInput = databaseService.getBinaryInput(endpoint, index);
                 socketIOService.sendMessageSelf(client, "listen", binaryInput);
 
                 log.info("namepace:{}, index:{}, data:{}, binaryInput:{}", nameSpace, index, data, binaryInput);

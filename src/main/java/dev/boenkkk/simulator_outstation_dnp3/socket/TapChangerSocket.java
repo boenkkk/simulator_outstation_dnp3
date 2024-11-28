@@ -6,7 +6,7 @@ import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
-import dev.boenkkk.simulator_outstation_dnp3.service.DatapointService;
+import dev.boenkkk.simulator_outstation_dnp3.service.DatabaseService;
 import dev.boenkkk.simulator_outstation_dnp3.service.SocketIOService;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ public class TapChangerSocket {
     private SocketIOService socketIOService;
 
     @Autowired
-    private DatapointService datapointService;
+    private DatabaseService databaseService;
 
     @PostConstruct
     public void init() {
@@ -68,7 +68,7 @@ public class TapChangerSocket {
                 String endpoint = "0.0.0.0";
                 Integer index = 0;
 
-                Double analogInput = datapointService.getAnalogInput(endpoint, index);
+                Double analogInput = databaseService.getAnalogInput(endpoint, index);
                 socketIOService.sendMessageSelf(client, "listen", analogInput);
 
                 log.info("namespace:{}, index:{}, binaryInput:{}", nameSpace, index, analogInput);
@@ -86,16 +86,16 @@ public class TapChangerSocket {
                 String endpoint = "0.0.0.0";
                 Integer index = data;
 
-                datapointService.updateValueBinaryOutput(endpoint, index, true);
-                Double analogInput = datapointService.getAnalogInput(endpoint, 0);
+                databaseService.updateValueBinaryOutput(endpoint, index, true);
+                Double analogInput = databaseService.getAnalogInput(endpoint, 0);
                 Double updateValue = 0.0;
                 if (data == 1) {
                     updateValue = analogInput + 1.0;
-                    datapointService.updateValueAnalogInput(endpoint, 0, updateValue);
+                    databaseService.updateValueAnalogInput(endpoint, 0, updateValue);
                     socketIOService.sendMessageSelf(client, "listen", updateValue);
                 } else if (data == 0) {
                     updateValue = analogInput - 1.0;
-                    datapointService.updateValueAnalogInput(endpoint, 0, updateValue);
+                    databaseService.updateValueAnalogInput(endpoint, 0, updateValue);
                     socketIOService.sendMessageSelf(client, "listen", updateValue);
                 }
 

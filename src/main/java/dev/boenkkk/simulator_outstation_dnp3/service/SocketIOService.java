@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class SocketIOService {
 
-    public final String DEFAULT_ROOM = "DEFAULT_ROOM";
+    public final String DEFAULT_ROOM = "DEFAULT";
 
     @Autowired
     private SocketIONamespace localRemoteNamespace;

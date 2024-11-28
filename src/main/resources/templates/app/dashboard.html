@@ -53,13 +53,10 @@
                         <!-- Display the number -->
                         <div id="number-display" style="font-size: 36px; font-weight: bold; margin-bottom: 10px;">0</div>
 
-                        <!-- Buttons for adjusting the number -->
-                        <button id="tap-changer-decrease" class="adjust-button btn btn-danger" style="margin: 5px;">
-                            Lower
-                        </button>
-                        <button id="tap-changer-increase" class="adjust-button btn btn-success" style="margin: 5px;">
-                            Raise
-                        </button>
+                        <div class="">
+                            <button id="tap-changer-decrease" class="adjust-button btn btn-danger">Lower</button>
+                            <button id="tap-changer-increase" class="adjust-button btn btn-success">Raise</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -198,7 +195,7 @@
                 socketTapChanger.emit("update-data", 1);
             });
             $("#tap-changer-decrease").on("click", function () {
-                socketTapChanger.emit("update-data", 0);
+                socketTapChanger.emit("update-data", 2);
             });
             // end tap-changer
 

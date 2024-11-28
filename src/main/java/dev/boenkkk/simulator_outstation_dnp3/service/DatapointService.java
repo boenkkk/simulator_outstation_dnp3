@@ -83,14 +83,14 @@ public class DatapointService {
             if (index == 1) {
                 updateValue = analogInput + 1.0;
                 databaseService.updateValueAnalogInput(endpoint, 0, updateValue);
-            } else if (index == 0) {
+            } else if (index == 2) {
                 updateValue = analogInput - 1.0;
                 databaseService.updateValueAnalogInput(endpoint, 0, updateValue);
             }
 
             return updateValue;
         } catch (Exception e) {
-            log.error("error:{}", e.getMessage());
+            log.error(e.getMessage());
             throw new Exception(e.getMessage());
         }
     }

@@ -41,8 +41,8 @@
                     <button id="btn-cb-close" class="custom-button btn btn-danger">OPEN</button>
                 </div>
                 <div class="row justify-content-center">
-                    <button id="cb-open-close-btn-close" class="btn btn-success rounded-circle fixed-wh-5em"></button>
-                    <button id="cb-open-close-btn-open" class="btn btn-danger rounded-circle fixed-wh-5em"></button>
+                    <button id="cb-open-close-btn-close" class="btn btn-success rounded-circle fixed-wh-5em">Close</button>
+                    <button id="cb-open-close-btn-open" class="btn btn-danger rounded-circle fixed-wh-5em">Open</button>
                 </div>
             </div>
 
@@ -55,10 +55,10 @@
 
                         <!-- Buttons for adjusting the number -->
                         <button id="tap-changer-decrease" class="adjust-button btn btn-danger" style="margin: 5px;">
-                            Down
+                            Lower
                         </button>
                         <button id="tap-changer-increase" class="adjust-button btn btn-success" style="margin: 5px;">
-                            Up
+                            Raise
                         </button>
                     </div>
                 </div>
@@ -205,9 +205,9 @@
             // disable all button
             function disableAllButton(value) {
                 if (value){
-                    $("#cb-open-close-btn-open, #cb-open-close-btn-close, #tap-changer-decrease, #tap-changer-increase").removeAttr("disabled").attr("disabled", true);
+                    $("#cb-open-close-btn-open, #cb-open-close-btn-close").removeAttr("disabled").attr("disabled", true);
                 } else {
-                    $("#cb-open-close-btn-open, #cb-open-close-btn-close, #tap-changer-decrease, #tap-changer-increase").removeAttr("disabled").attr("disablde", false);
+                    $("#cb-open-close-btn-open, #cb-open-close-btn-close").removeAttr("disabled").attr("disablde", false);
                 }
             }
         });

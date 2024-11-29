@@ -51,9 +51,10 @@ public class DatabaseConfigImpl {
             db.updateBinaryInput(binaryInput, updateOptions);
         }
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 2; i++) {
             // TODO: NOTE
             // 0: Tap Changer Value
+            // 1: Measurement Value
             AnalogInputConfig analogInputConfig = new AnalogInputConfig()
                 .withStaticVariation(StaticAnalogInputVariation.GROUP30_VAR4)
                 .withEventVariation(EventAnalogInputVariation.GROUP32_VAR4);

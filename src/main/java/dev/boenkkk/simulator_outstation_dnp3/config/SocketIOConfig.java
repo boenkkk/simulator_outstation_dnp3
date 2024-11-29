@@ -77,4 +77,9 @@ public class SocketIOConfig {
     public SocketIONamespace tapChangerNamespace(SocketIOServer server) {
         return server.addNamespace("/tap-changer");
     }
+
+    @Bean
+    public SocketIONamespace measurementNamespace(SocketIOServer server) {
+        return server.addNamespace("/measurement");
+    }
 }

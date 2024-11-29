@@ -10,6 +10,7 @@ import dev.boenkkk.simulator_outstation_dnp3.model.callback.OutstationInformatio
 import dev.boenkkk.simulator_outstation_dnp3.config.DatabaseConfigImpl;
 import dev.boenkkk.simulator_outstation_dnp3.model.RuntimeChannel;
 import dev.boenkkk.simulator_outstation_dnp3.properties.Dnp3Properties;
+import dev.boenkkk.simulator_outstation_dnp3.scheduler.SchedulerTask;
 import dev.boenkkk.simulator_outstation_dnp3.util.JsonUtil;
 import io.stepfunc.dnp3.*;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,9 @@ public class ServerService {
 
     @Autowired
     private SocketIOService socketIOService;
+
+    @Autowired
+    private SchedulerTask schedulerTask;
 
     public void addServer(Dnp3ServerOutstationModel dnp3ServerOutstation){
         log.info(dnp3ServerOutstation.toString());
@@ -101,7 +105,7 @@ public class ServerService {
         // ANCHOR_END: database_init
 
         // Start the scheduled task to generate random updates
-        // schedulerTask.startScheduledTask(outstation);
+        schedulerTask.startScheduledTask(outstation);
 
         // automaticly started channel
         outstation.enable();

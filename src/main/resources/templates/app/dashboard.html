@@ -104,6 +104,16 @@
                     </div>
                 </div>
             </div>
+
+            <div class="measurement group-border col-md-4">
+                <h5>Measurement</h5>
+                <div class="number-adjust-container" style="text-align: center; margin: 20px;">
+                    <div style="display: inline-block; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+                        <!-- Display the number -->
+                        <div id="measurement-number-display" style="font-size: 36px; font-weight: bold; margin-bottom: 10px;">0</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -274,6 +284,30 @@
                 socketTapChanger.emit("update-data", 2);
             });
             // end tap-changer
+
+            // start measurement
+            let socketMeasurement = io(socketEndpoint + "/measurement");
+            let valueMeasurement;
+
+            socketMeasurement.on("connect", function () {
+                socketMeasurement.emit("get-data");
+            });
+
+            socketMeasurement.on("disconnect", function () {
+            });
+
+            socketMeasurement.on("listen", function (data) {
+                valueMeasurement = data.toFixed(2);
+                $("#measurement-number-display").text(valueMeasurement);
+            });
+
+            setInterval(function() {
+                socketMeasurement.emit("get-data")
+            }, 1000);
+
+            socketMeasurement.on("connect_error", function (error) {
+            });
+            // end measurement
 
             // disable all button
             function disableAllButton(value) {

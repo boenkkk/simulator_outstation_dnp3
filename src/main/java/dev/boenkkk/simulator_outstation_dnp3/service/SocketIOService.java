@@ -21,6 +21,9 @@ public class SocketIOService {
     @Autowired
     private SocketIONamespace tapChangerNamespace;
 
+    @Autowired
+    private SocketIONamespace measurementNamespace;
+
     private SocketIONamespace getNamespace(String namespace) {
         switch (namespace) {
             case "/local-remote" -> {
@@ -31,6 +34,9 @@ public class SocketIOService {
             }
             case "/tap-changer" -> {
                 return tapChangerNamespace;
+            }
+            case "/measurement" -> {
+                return measurementNamespace;
             }
             default -> {
                 return null;

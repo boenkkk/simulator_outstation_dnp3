@@ -234,12 +234,16 @@
                 socketTapChanger.emit("get-data");
             });
 
+            setInterval(function() {
+                socketTapChanger.emit("get-data")
+            }, 1000);
+
             socketTapChanger.on("disconnect", function () {
             });
 
             socketTapChanger.on("listen", function (data) {
                 dataTapChanger = data;
-                $("#number-display").text(dataTapChanger.valueTapChanger);
+                $("#number-display").text(dataTapChanger.valueTapChanger.toFixed(0));
 
                 // auto/manual
                 if (dataTapChanger.valueTapChangerAutoManual){

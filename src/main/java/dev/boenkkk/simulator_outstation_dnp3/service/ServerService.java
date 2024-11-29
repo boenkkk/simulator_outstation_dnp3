@@ -120,5 +120,6 @@ public class ServerService {
 
         // Start the scheduled task
         schedulerTask.toggleSchedulerMeasurement(true, 1);
+        schedulerTask.toggleSchedulerTapChanger(true, 1);
     }
 }

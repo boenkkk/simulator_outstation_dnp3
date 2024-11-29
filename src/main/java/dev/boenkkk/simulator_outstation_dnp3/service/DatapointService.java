@@ -1,5 +1,6 @@
 package dev.boenkkk.simulator_outstation_dnp3.service;
 
+import dev.boenkkk.simulator_outstation_dnp3.scheduler.SchedulerTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,9 @@ public class DatapointService {
 
     @Autowired
     private DatabaseService databaseService;
+
+    @Autowired
+    private SchedulerTask schedulerTask;
 
     public Boolean getValueLocalRemote() throws Exception {
         try {
@@ -89,9 +93,11 @@ public class DatapointService {
             double updateValue = 0.0;
             if (index == 1) {
                 updateValue = analogInput + 1.0;
+                updateValue = updateValue >= 32 ? 32 : updateValue;
                 databaseService.updateValueAnalogInput(endpoint, 0, updateValue);
             } else if (index == 2) {
                 updateValue = analogInput - 1.0;
+                updateValue = updateValue <= 0 ? 0 : updateValue;
                 databaseService.updateValueAnalogInput(endpoint, 0, updateValue);
             }
 
@@ -104,6 +110,11 @@ public class DatapointService {
 
     public Boolean updateTapChangerAutoManual(Boolean value) throws Exception{
         try {
+            // switch boolean for toggle scheduler
+            boolean switchedBoolean = !value;
+            log.info("boolean:{}, switchedBoolean:{}", value,switchedBoolean);
+            schedulerTask.toggleSchedulerTapChanger(switchedBoolean, 1);
+
             String endpoint = "0.0.0.0";
             Integer indexBO = 3;
             databaseService.updateValueBinaryOutput(endpoint, indexBO, value);

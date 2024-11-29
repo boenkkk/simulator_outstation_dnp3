@@ -53,4 +53,35 @@ public class SchedulerTask {
             }
         }
     }
+
+    private final AtomicBoolean isSchedulerTapChangerEnable = new AtomicBoolean(false);
+    public synchronized void toggleSchedulerTapChanger(boolean enable, int interval) {
+        if (enable) {
+            if (isSchedulerTapChangerEnable.compareAndSet(false, true)) {
+                log.info("Scheduler enabled with interval: {} seconds.", interval);
+                scheduler.scheduleAtFixedRate(() -> {
+                    if (isSchedulerTapChangerEnable.get()) {
+                        try {
+                            // do task
+                            databaseService.updateValueAnalogInput(
+                                "0.0.0.0",
+                                0,
+                                randomUtil.getRandomDouble(0.0, 32.0)
+                            );
+                        } catch (Exception e) {
+                            log.error("Error executing task: {}", e.getMessage(), e);
+                        }
+                    }
+                }, 0, interval, TimeUnit.SECONDS);
+            } else {
+                log.info("Scheduler is already enabled.");
+            }
+        } else {
+            if (isSchedulerTapChangerEnable.compareAndSet(true, false)) {
+                log.info("Scheduler disabled.");
+            } else {
+                log.info("Scheduler is already disabled.");
+            }
+        }
+    }
 }

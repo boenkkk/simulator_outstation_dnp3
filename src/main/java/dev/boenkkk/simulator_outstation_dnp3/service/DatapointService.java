@@ -131,4 +131,14 @@ public class DatapointService {
             throw new Exception(e.getMessage());
         }
     }
+
+    public Double getValueMeasurement() throws Exception {
+        try {
+            String endpoint = "0.0.0.0";
+            return databaseService.getAnalogInput(endpoint, 1);
+        } catch (Exception e) {
+            log.error("error:{}", e.getMessage());
+            throw new Exception(e.getMessage());
+        }
+    }
 }

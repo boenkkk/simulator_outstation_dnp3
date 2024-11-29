@@ -58,10 +58,12 @@ public class DatapointService {
     public Boolean updateCBOpenClose(Boolean value) throws Exception{
         try {
             String endpoint = "0.0.0.0";
-            Integer index = 1;
+            Integer indexBO = 0;
+            databaseService.updateValueBinaryOutput(endpoint, indexBO, value);
 
-            databaseService.updateValueBinaryInput(endpoint, index, value);
-            return databaseService.getBinaryInput(endpoint, index);
+            Integer indexBI = 1;
+            databaseService.updateValueBinaryInput(endpoint, indexBI, value);
+            return databaseService.getBinaryInput(endpoint, indexBI);
         } catch (Exception e) {
             log.error("error:{}", e.getMessage());
             throw new Exception(e.getMessage());

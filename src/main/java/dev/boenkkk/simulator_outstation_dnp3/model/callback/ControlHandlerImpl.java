@@ -57,9 +57,14 @@ public class ControlHandlerImpl implements ControlHandler {
                 boolean value = group12Var1.code.opType == OpType.LATCH_ON;
                 switch (index.intValue()) {
                     case 0 -> {
-                        Boolean valueCBOpenClose = datapointService.updateCBOpenClose(value);
-                        socketIOService.broadcastToDefaultRoom("/cb-open-close", "listen", valueCBOpenClose);
-                        commandStatus = CommandStatus.SUCCESS;
+                        Boolean valueLocalRemote = datapointService.getValueLocalRemote();
+                        if (valueLocalRemote) {
+                            Boolean valueCBOpenClose = datapointService.updateCBOpenClose(value);
+                            socketIOService.broadcastToDefaultRoom("/cb-open-close", "listen", valueCBOpenClose);
+                            commandStatus = CommandStatus.SUCCESS;
+                        } else {
+                            commandStatus = CommandStatus.LOCAL;
+                        }
                     }
                     case 1 -> {
                         if (value) {
@@ -80,7 +85,7 @@ public class ControlHandlerImpl implements ControlHandler {
                             commandStatus = CommandStatus.NOT_SUPPORTED;
                         }
                     }
-                    default -> commandStatus = CommandStatus.NOT_SUPPORTED;
+                    default -> commandStatus = CommandStatus.OUT_OF_RANGE;
                 }
             } else {
                 commandStatus = CommandStatus.NOT_SUPPORTED;

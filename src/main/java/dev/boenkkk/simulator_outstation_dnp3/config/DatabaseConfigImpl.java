@@ -20,11 +20,13 @@ public class DatabaseConfigImpl {
         db.defineStringAttr(ubyte(0), false, AttributeVariations.USER_ASSIGNED_OWNER_NAME, "BOENKKK.DEV");
         db.defineStringAttr(ubyte(0), true, AttributeVariations.PRODUCT_NAME_AND_MODEL, "SIMULATOR DNP3 OUTSTATION");
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 5; i++) {
             // TODO: NOTE
             // 0: 0 CB Close / 1 CB Open
             // 1: Tap Changer Value Up
             // 2: Tap Changer Value Down
+            // 3: 0 Tap Changer Auto / 1 Tap Changer Manual
+            // 4: 0 Tap Changer Local / 1 Tap Changer Remote
             BinaryOutputStatusConfig binaryOutputStatusConfig = new BinaryOutputStatusConfig()
                 .withStaticVariation(StaticBinaryOutputStatusVariation.GROUP10_VAR2)
                 .withEventVariation(EventBinaryOutputStatusVariation.GROUP11_VAR2);

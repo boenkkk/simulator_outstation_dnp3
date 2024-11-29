@@ -4,6 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 @Slf4j
 public class DatapointService {
@@ -61,12 +64,16 @@ public class DatapointService {
         }
     }
 
-    public Double getValueTapChanger() throws Exception {
+    public Map<String, Object> getDataTapChanger() throws Exception {
         try {
             String endpoint = "0.0.0.0";
-            Integer index = 0;
 
-            return databaseService.getAnalogInput(endpoint, index);
+            Map<String, Object> mapReturn = new HashMap<>();
+            mapReturn.put("valueTapChanger", databaseService.getAnalogInput(endpoint, 0));
+            mapReturn.put("valueTapChangerAutoManual", databaseService.getBinaryInput(endpoint, 2));
+            mapReturn.put("valueTapChangerLocalRemote", databaseService.getBinaryInput(endpoint, 3));
+
+            return mapReturn;
         } catch (Exception e) {
             log.error("error:{}", e.getMessage());
             throw new Exception(e.getMessage());
@@ -91,6 +98,36 @@ public class DatapointService {
             return updateValue;
         } catch (Exception e) {
             log.error(e.getMessage());
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    public Boolean updateTapChangerAutoManual(Boolean value) throws Exception{
+        try {
+            String endpoint = "0.0.0.0";
+            Integer indexBO = 3;
+            databaseService.updateValueBinaryOutput(endpoint, indexBO, value);
+
+            Integer indexBI = 2;
+            databaseService.updateValueBinaryInput(endpoint, indexBI, value);
+            return databaseService.getBinaryInput(endpoint, indexBI);
+        } catch (Exception e) {
+            log.error("error:{}", e.getMessage());
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    public Boolean updateTapChangerLocalRemote(Boolean value) throws Exception{
+        try {
+            String endpoint = "0.0.0.0";
+            Integer indexBO = 4;
+            databaseService.updateValueBinaryOutput(endpoint, indexBO, value);
+
+            Integer indexBI = 3;
+            databaseService.updateValueBinaryInput(endpoint, indexBI, value);
+            return databaseService.getBinaryInput(endpoint, indexBI);
+        } catch (Exception e) {
+            log.error("error:{}", e.getMessage());
             throw new Exception(e.getMessage());
         }
     }

@@ -7,6 +7,8 @@ import io.stepfunc.dnp3.*;
 import lombok.extern.slf4j.Slf4j;
 import org.joou.UShort;
 
+import java.util.Map;
+
 import static org.joou.Unsigned.ushort;
 
 // ANCHOR: control_handler
@@ -68,8 +70,9 @@ public class ControlHandlerImpl implements ControlHandler {
                     }
                     case 1 -> {
                         if (value) {
-                            Double valueTapChanger = datapointService.updateValueTapChanger(index.intValue());
-                            socketIOService.broadcastToDefaultRoom("/tap-changer", "listen", valueTapChanger);
+                            datapointService.updateValueTapChanger(index.intValue());
+                            Map<String, Object> dataTapChanger = datapointService.getDataTapChanger();
+                            socketIOService.broadcastToDefaultRoom("/tap-changer", "listen", dataTapChanger);
                             commandStatus = CommandStatus.SUCCESS;
                         } else {
                             commandStatus = CommandStatus.NOT_SUPPORTED;
@@ -78,12 +81,25 @@ public class ControlHandlerImpl implements ControlHandler {
                     case 2 -> {
                         log.info("2");
                         if (value) {
-                            Double valueTapChanger = datapointService.updateValueTapChanger(index.intValue());
-                            socketIOService.broadcastToDefaultRoom("/tap-changer", "listen", valueTapChanger);
+                            datapointService.updateValueTapChanger(index.intValue());
+                            Map<String, Object> dataTapChanger = datapointService.getDataTapChanger();
+                            socketIOService.broadcastToDefaultRoom("/tap-changer", "listen", dataTapChanger);
                             commandStatus = CommandStatus.SUCCESS;
                         } else {
                             commandStatus = CommandStatus.NOT_SUPPORTED;
                         }
+                    }
+                    case 3 -> {
+                        datapointService.updateTapChangerAutoManual(value);
+                        Map<String, Object> dataTapChangerUpdated = datapointService.getDataTapChanger();
+                        socketIOService.broadcastToDefaultRoom("/tap-changer", "listen", dataTapChangerUpdated);
+                        commandStatus = CommandStatus.SUCCESS;
+                    }
+                    case 4 -> {
+                        datapointService.updateTapChangerLocalRemote(value);
+                        Map<String, Object> dataTapChangerUpdated = datapointService.getDataTapChanger();
+                        socketIOService.broadcastToDefaultRoom("/tap-changer", "listen", dataTapChangerUpdated);
+                        commandStatus = CommandStatus.SUCCESS;
                     }
                     default -> commandStatus = CommandStatus.OUT_OF_RANGE;
                 }

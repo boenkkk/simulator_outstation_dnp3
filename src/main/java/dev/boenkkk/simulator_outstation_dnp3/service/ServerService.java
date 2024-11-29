@@ -104,9 +104,6 @@ public class ServerService {
         outstation.transaction(DatabaseConfigImpl::initializeDatabaseDefault);
         // ANCHOR_END: database_init
 
-        // Start the scheduled task to generate random updates
-        schedulerTask.startScheduledTask(outstation);
-
         // automaticly started channel
         outstation.enable();
 
@@ -120,5 +117,8 @@ public class ServerService {
                 .build()
         );
         outstationsService.registerBean(outstationBean);
+
+        // Start the scheduled task
+        schedulerTask.toggleSchedulerMeasurement(true, 1);
     }
 }

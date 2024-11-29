@@ -1,6 +1,8 @@
 <div th:fragment="content" xmlns:th="http://www.w3.org/1999/xhtml">
     <style>
         .custom-button{
+            margin-right: 20px;
+            margin-left: 20px;
             width: 150px;
             height: 70px;
         }
@@ -18,21 +20,25 @@
         <div class="row">
             <div class="local-remote group-border col-md-4">
                 <h5>Local / Remote</h5>
-                <div class="row justify-content-center">
-                    <button id="btn-local-remote" class="custom-button btn btn-danger cursor-disabled" onclick="">LOCAL</button>
-                </div>
+                <div class="number-adjust-container" style="text-align: center; margin: 20px;">
+                    <div style="display: inline-block; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+                        <div class="row justify-content-center">
+                            <button id="btn-local-remote" class="custom-button btn btn-danger cursor-disabled" onclick="">LOCAL</button>
+                        </div>
 
-                <div class="row justify-content-center">
-                    <div class="control-knob dark">
-                        <input type="checkbox" id="checkbox-local-remote">
-                        <div class="control-position on">
-                            <span>LOCAL</span>
-                        </div>
-                        <div class="control-position off">
-                            <span>REMOTE</span>
-                        </div>
-                        <div class="knob">
-                            <div class="knob-center"></div>
+                        <div class="row justify-content-center">
+                            <div class="control-knob dark">
+                                <input type="checkbox" id="checkbox-local-remote">
+                                <div class="control-position on">
+                                    <span>LOCAL</span>
+                                </div>
+                                <div class="control-position off">
+                                    <span>REMOTE</span>
+                                </div>
+                                <div class="knob">
+                                    <div class="knob-center"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -40,13 +46,19 @@
 
             <div class="cb-open-close group-border col-md-4">
                 <h5>CB Open / Close</h5>
-                <div class="row justify-content-center">
-                    <button id="btn-cb-open" class="custom-button btn btn-secondary cursor-disabled">CLOSE</button>
-                    <button id="btn-cb-close" class="custom-button btn btn-danger cursor-disabled">OPEN</button>
-                </div>
-                <div class="row justify-content-center">
-                    <button id="cb-open-close-btn-close" class="btn btn-success rounded-circle fixed-wh-5em">Close</button>
-                    <button id="cb-open-close-btn-open" class="btn btn-danger rounded-circle fixed-wh-5em">Open</button>
+                <div class="number-adjust-container" style="text-align: center; margin: 20px;">
+                    <div style="display: inline-block; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+                        <!-- CB Open/Close Buttons -->
+                        <div class="row justify-content-center mb-3">
+                            <button id="btn-cb-open" class="custom-button btn btn-secondary cursor-disabled">CLOSE</button>
+                            <button id="btn-cb-close" class="custom-button btn btn-danger cursor-disabled">OPEN</button>
+                        </div>
+
+                        <div class="row justify-content-center">
+                            <button id="cb-open-close-btn-close" class="btn btn-success rounded-circle fixed-wh-5em">Close</button>
+                            <button id="cb-open-close-btn-open" class="btn btn-danger rounded-circle fixed-wh-5em">Open</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 

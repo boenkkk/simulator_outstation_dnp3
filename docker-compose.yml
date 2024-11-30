@@ -11,7 +11,8 @@ services:
             context: .
             dockerfile: DOCKERFILE
         networks:
-            - app-tier
+            app-tier:
+                ipv4_address: 10.0.11.139
         volumes:
             - /home/docker-container-logs/simulator_outstation_dnp3:/app/logs
         ports:

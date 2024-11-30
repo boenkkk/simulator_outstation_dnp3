@@ -119,7 +119,20 @@ public class ServerService {
         outstationsService.registerBean(outstationBean);
 
         // Start the scheduled task
-        schedulerTask.toggleSchedulerMeasurement(true, 1);
+        runScheduller();
+    }
+
+    public void runScheduller(){
         schedulerTask.toggleSchedulerTapChanger(true, 1);
+        schedulerTask.toggleSchedulerVR(true, 1);
+        schedulerTask.toggleSchedulerP(true, 1);
+        schedulerTask.toggleSchedulerQ(true, 1);
+        schedulerTask.toggleSchedulerPF(true, 1);
+        schedulerTask.toggleSchedulerVS(true, 1);
+        schedulerTask.toggleSchedulerVT(true, 1);
+        schedulerTask.toggleSchedulerF(true, 1);
+        schedulerTask.toggleSchedulerIR(true, 1);
+        schedulerTask.toggleSchedulerIS(true, 1);
+        schedulerTask.toggleSchedulerIT(true, 1);
     }
 }

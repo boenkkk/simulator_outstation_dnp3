@@ -1,0 +1,153 @@
+<div th:fragment="tap-changer" class="tap-changer col-md-4 border border-dark rounded">
+    <h5>Tap Changer</h5>
+    <div class="number-adjust-container" style="text-align: center; margin: 20px;">
+        <div style="display: inline-block; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+            <!-- Display the number -->
+            <div id="number-display" style="font-size: 36px; font-weight: bold; margin-bottom: 10px;">0</div>
+
+            <div class="d-flex justify-content-center mb-3">
+                <div class="control-knob dark mx-2">
+                    <input type="checkbox" id="checkbox-tap-changer-automatic-manual">
+                    <div class="control-position on">
+                        <span>AUTO</span>
+                    </div>
+                    <div class="control-position off">
+                        <span>MANUAL</span>
+                    </div>
+                    <div class="knob">
+                        <div class="knob-center"></div>
+                    </div>
+                </div>
+
+                <div class="control-knob dark mx-2">
+                    <input type="checkbox" id="checkbox-tap-changer-local-remote">
+                    <div class="control-position on">
+                        <span>LOCAL</span>
+                    </div>
+                    <div class="control-position off">
+                        <span>REMOTE</span>
+                    </div>
+                    <div class="knob">
+                        <div class="knob-center"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <button id="tap-changer-increase" class="adjust-button btn btn-success">Raise</button>
+                <button id="tap-changer-decrease" class="adjust-button btn btn-danger">Lower</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <table>
+            <tr>
+                <td>Value Tap Changer</td>
+                <td>: Analog Input Index 0 (IOA 30)</td>
+            </tr>
+            <tr>
+                <td>Raise Tap Changer</td>
+                <td>: Binary Output Index 1 (IOA 21)</td>
+            </tr>
+            <tr>
+                <td>Lower Tap Changer</td>
+                <td>: Binary Output Index 2 (IOA 22)</td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        $(function () {
+            let socketTapChanger = io(socketEndpoint + "/tap-changer");
+            let dataTapChanger;
+
+            socketTapChanger.on("connect", function () {
+                socketTapChanger.emit("get-data");
+            });
+
+            setInterval(function() {
+                socketTapChanger.emit("get-data")
+            }, 1000);
+
+            socketTapChanger.on("disconnect", function () {
+            });
+
+            socketTapChanger.on("listen", function (data) {
+                dataTapChanger = data;
+                $("#number-display").text(dataTapChanger.valueTapChanger.toFixed(0));
+
+                // auto/manual
+                if (dataTapChanger.valueTapChangerAutoManual){
+                    $("#checkbox-tap-changer-automatic-manual").attr("checked", true);
+                } else {
+                    $("#checkbox-tap-changer-automatic-manual").attr("checked", false);
+                }
+
+                // local/remote
+                if (dataTapChanger.valueTapChangerLocalRemote){
+                    $("#checkbox-tap-changer-local-remote").attr("checked", true);
+                } else {
+                    $("#checkbox-tap-changer-local-remote").attr("checked", false);
+                }
+
+                conditionTapChanger(dataTapChanger);
+            });
+
+            socketTapChanger.on("connect_error", function (error) {
+            });
+
+            $("#checkbox-tap-changer-automatic-manual").on("click", function () {
+                if (dataTapChanger.valueTapChangerAutoManual) {
+                    socketTapChanger.emit("update-auto-manual", false);
+                } else {
+                    socketTapChanger.emit("update-auto-manual", true);
+                }
+            });
+
+            $("#checkbox-tap-changer-local-remote").on("click", function () {
+                if (dataTapChanger.valueTapChangerLocalRemote) {
+                    socketTapChanger.emit("update-local-remote", false);
+                } else {
+                    socketTapChanger.emit("update-local-remote", true);
+                }
+            });
+
+            $("#tap-changer-increase").on("click", function () {
+                socketTapChanger.emit("update-data", 1);
+            });
+            $("#tap-changer-decrease").on("click", function () {
+                socketTapChanger.emit("update-data", 2);
+            });
+
+            function conditionTapChanger(value) {
+                if (!value.valueTapChangerAutoManual){
+                    disableKnobTapChangerLocalRemote(true);
+                    disableButtonRaiseLower(true);
+                } else if(value.valueTapChangerAutoManual && value.valueTapChangerLocalRemote){
+                    disableKnobTapChangerLocalRemote(false);
+                    disableButtonRaiseLower(true);
+                } else {
+                    disableKnobTapChangerLocalRemote(false);
+                    disableButtonRaiseLower(false);
+                }
+            }
+
+            function disableKnobTapChangerLocalRemote(value){
+                if (value){
+                    $("#checkbox-tap-changer-local-remote").removeAttr("disabled").attr("disabled", true).addClass("cursor-disabled");
+                } else {
+                    $("#checkbox-tap-changer-local-remote").removeAttr("disabled").attr("disabled", false).removeClass("cursor-disabled");
+                }
+            }
+
+            function disableButtonRaiseLower(value) {
+                if (value) {
+                    $("#tap-changer-increase, #tap-changer-decrease").removeAttr("disabled").attr("disabled", true);
+                } else {
+                    $("#tap-changer-increase, #tap-changer-decrease").removeAttr("disabled").attr("disabled", false);
+                }
+            }
+        });
+    </script>
+</div>

@@ -1,0 +1,81 @@
+<div th:fragment="cb-open-close" class="cb-open-close col-md-4 border border-dark rounded">
+    <h5>CB Open / Close</h5>
+    <div class="number-adjust-container" style="text-align: center; margin: 20px;">
+        <div style="display: inline-block; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+            <!-- CB Open/Close Buttons -->
+            <div class="row justify-content-center mb-3">
+                <button id="btn-cb-open" class="custom-button btn btn-secondary cursor-disabled">CLOSE</button>
+                <button id="btn-cb-close" class="custom-button btn btn-danger cursor-disabled">OPEN</button>
+            </div>
+
+            <div class="row justify-content-center">
+                <button id="cb-open-close-btn-close" class="btn btn-success rounded-circle fixed-wh-5em">Close</button>
+                <button id="cb-open-close-btn-open" class="btn btn-danger rounded-circle fixed-wh-5em">Open</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <table>
+            <tr>
+                <td>Value CB</td>
+                <td>: Binary Input Index 1 (IOA 11)</td>
+            </tr>
+            <tr>
+                <td>Command CB</td>
+                <td>: Binary Output Index 0 (IOA 20)</td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        $(function () {
+            let socketCBOpenClose = io(socketEndpoint + "/cb-open-close");
+            let valueCBOpenClose;
+
+            socketCBOpenClose.on("connect", function () {
+                socketCBOpenClose.emit("get-data");
+            });
+
+            socketCBOpenClose.on("disconnect", function () {
+            });
+
+            socketCBOpenClose.on("listen", function (data) {
+                if (data){
+                    valueCBOpenClose = data;
+                    $("#btn-cb-open").removeClass("btn-secondary");
+                    $("#btn-cb-open").addClass("btn-success");
+                    $("#btn-cb-close").removeClass("btn-danger");
+                    $("#btn-cb-close").addClass("btn-secondary");
+                } else {
+                    valueCBOpenClose = data;
+                    $("#btn-cb-open").removeClass("btn-success");
+                    $("#btn-cb-open").addClass("btn-secondary");
+                    $("#btn-cb-close").removeClass("btn-secondary");
+                    $("#btn-cb-close").addClass("btn-danger");
+                }
+            });
+
+            socketCBOpenClose.on("connect_error", function (error) {
+            });
+
+            $("#cb-open-close-btn-close").on("click", function () {
+                $("#btn-cb-open").removeClass("btn-success");
+                $("#btn-cb-open").addClass("btn-secondary");
+                $("#btn-cb-close").removeClass("btn-secondary");
+                $("#btn-cb-close").addClass("btn-danger");
+
+                socketCBOpenClose.emit("update-data", true);
+            });
+
+            $("#cb-open-close-btn-open").on("click", function () {
+                $("#btn-cb-open").removeClass("btn-secondary");
+                $("#btn-cb-open").addClass("btn-success");
+                $("#btn-cb-close").removeClass("btn-danger");
+                $("#btn-cb-close").addClass("btn-secondary");
+
+                socketCBOpenClose.emit("update-data", false);
+            });
+        });
+    </script>
+</div>

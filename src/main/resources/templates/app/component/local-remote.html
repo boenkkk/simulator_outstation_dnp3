@@ -1,0 +1,89 @@
+<div th:fragment="local-remote" class="local-remote col-md-4 border border-dark rounded">
+    <h5>Local / Remote</h5>
+    <div class="number-adjust-container" style="text-align: center; margin: 20px;">
+        <div style="display: inline-block; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+            <div class="row justify-content-center">
+                <button id="btn-local-remote" class="custom-button btn btn-danger cursor-disabled" onclick="">LOCAL</button>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="control-knob dark">
+                    <input type="checkbox" id="checkbox-local-remote">
+                    <div class="control-position on">
+                        <span>LOCAL</span>
+                    </div>
+                    <div class="control-position off">
+                        <span>REMOTE</span>
+                    </div>
+                    <div class="knob">
+                        <div class="knob-center"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+            let socketLocalRemote = io(socketEndpoint + "/local-remote");
+            let valueLocalRemote;
+
+            socketLocalRemote.on("connect", function () {
+                socketLocalRemote.emit("get-data");
+            });
+
+            socketLocalRemote.on("disconnect", function () {
+            });
+
+            socketLocalRemote.on("listen", function (data) {
+                if (data) {
+                    valueLocalRemote = data;
+                    $("#btn-local-remote").text("REMOTE");
+                    $("#btn-local-remote").removeClass("btn-danger");
+                    $("#btn-local-remote").addClass("btn-success");
+                    $("#checkbox-local-remote").attr("checked", true);
+
+                    disableCBButtons(true);
+                } else {
+                    valueLocalRemote = data;
+                    $("#btn-local-remote").text("LOCAL");
+                    $("#btn-local-remote").removeClass("btn-success");
+                    $("#btn-local-remote").addClass("btn-danger");
+                    $("#checkbox-local-remote").attr("checked", false);
+
+                    disableCBButtons(false);
+                }
+            });
+
+            socketLocalRemote.on("connect_error", function (error) {
+            });
+
+            $("#checkbox-local-remote").on("click", function () {
+                if (valueLocalRemote) {
+                    $("#btn-local-remote").text("LOCAL");
+                    $("#btn-local-remote").removeClass("btn-success");
+                    $("#btn-local-remote").addClass("btn-danger");
+
+                    socketLocalRemote.emit("update-data", false);
+                    // disableCBButtons(false);
+                } else {
+                    $("#btn-local-remote").text("REMOTE");
+                    $("#btn-local-remote").removeClass("btn-danger");
+                    $("#btn-local-remote").addClass("btn-success");
+
+                    socketLocalRemote.emit("update-data", true);
+                    // disableCBButtons(true);
+                }
+            });
+
+            // disable cb buttons
+            function disableCBButtons(value) {
+                if (value) {
+                    $("#cb-open-close-btn-open, #cb-open-close-btn-close").removeAttr("disabled").attr("disabled", true);
+                } else {
+                    $("#cb-open-close-btn-open, #cb-open-close-btn-close").removeAttr("disabled").attr("disabled", false);
+                }
+            }
+        });
+    </script>
+</div>

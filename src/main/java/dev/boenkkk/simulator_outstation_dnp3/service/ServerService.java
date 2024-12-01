@@ -117,22 +117,19 @@ public class ServerService {
                 .build()
         );
         outstationsService.registerBean(outstationBean);
-
-        // Start the scheduled task
-        runScheduller();
     }
 
     public void runScheduller(){
-        schedulerTask.toggleSchedulerTapChanger(true, 1);
-        schedulerTask.toggleSchedulerVR(true, 1);
-        schedulerTask.toggleSchedulerP(true, 1);
-        schedulerTask.toggleSchedulerQ(true, 1);
-        schedulerTask.toggleSchedulerPF(true, 1);
-        schedulerTask.toggleSchedulerVS(true, 1);
-        schedulerTask.toggleSchedulerVT(true, 1);
-        schedulerTask.toggleSchedulerF(true, 1);
-        schedulerTask.toggleSchedulerIR(true, 1);
-        schedulerTask.toggleSchedulerIS(true, 1);
-        schedulerTask.toggleSchedulerIT(true, 1);
+        schedulerTask.toggleScheduler("SCHEDULER_TAP_CHANGER", true, 1, 0, 0, 32);
+        schedulerTask.toggleScheduler("SCHEDULER_VR", true, 1, 1, 309, 330);
+        schedulerTask.toggleScheduler("SCHEDULER_P", true, 1, 2, 300, 400);
+        schedulerTask.toggleScheduler("SCHEDULER_Q", true, 1, 3, 500, 600);
+        schedulerTask.toggleScheduler("SCHEDULER_PF", true, 1, 4, 0, 1);
+        schedulerTask.toggleScheduler("SCHEDULER_VS", true, 1, 5, 309, 330);
+        schedulerTask.toggleScheduler("SCHEDULER_VT", true, 1, 6, 309, 330);
+        schedulerTask.toggleScheduler("SCHEDULER_F", true, 1, 7, 49.5, 51.5);
+        schedulerTask.toggleScheduler("SCHEDULER_IR", true, 1, 8, 270, 289);
+        schedulerTask.toggleScheduler("SCHEDULER_IS", true, 1, 9, 270, 289);
+        schedulerTask.toggleScheduler("SCHEDULER_IT", true, 1, 10, 270, 289);
     }
 }

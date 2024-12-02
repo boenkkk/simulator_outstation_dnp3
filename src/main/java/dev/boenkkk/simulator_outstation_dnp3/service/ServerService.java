@@ -62,20 +62,20 @@ public class ServerService {
 
         // ANCHOR: outstation_config
         // create an outstation configuration with default values
-        int maxEventBuffer = 10;
+        // int maxEventBuffer = 50;
         OutstationConfig outstationConfig = new OutstationConfig(
             ushort(dnp3ServerOutstation.getSlaveAddress()),
             ushort(dnp3ServerOutstation.getMasterAddress()),
             // event buffer sizes
             new EventBufferConfig(
-                ushort(maxEventBuffer), // binary
-                ushort(maxEventBuffer), // double-bit binary
-                ushort(maxEventBuffer), // binary output status
-                ushort(maxEventBuffer), // counter
-                ushort(maxEventBuffer), // frozen counter
-                ushort(maxEventBuffer), // analog
-                ushort(maxEventBuffer), // analog output status
-                ushort(maxEventBuffer) // octet string
+                ushort(50), // binary
+                ushort(50), // double-bit binary
+                ushort(50), // binary output status
+                ushort(5), // counter
+                ushort(5), // frozen counter
+                ushort(50), // analog
+                ushort(50), // analog output status
+                ushort(3) // octet string
             )
         ).withKeepAliveTimeout(Duration.ofSeconds(dnp3Properties.getKeepAliveTimeout()));
         outstationConfig.decodeLevel.application = AppDecodeLevel.NOTHING;

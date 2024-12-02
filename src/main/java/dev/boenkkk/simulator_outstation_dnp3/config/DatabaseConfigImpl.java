@@ -81,7 +81,7 @@ public class DatabaseConfigImpl {
             db.updateBinaryInput(binaryInput, updateOptions);
         }
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 11; i++) {
             // TODO: NOTE ANALOG_INPUT(3)
             // 0 : Tap Changer 0 - 32
             // 1 : VR 309 sd 330

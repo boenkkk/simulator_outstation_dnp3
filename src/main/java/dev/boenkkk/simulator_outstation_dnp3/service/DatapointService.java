@@ -1,5 +1,6 @@
 package dev.boenkkk.simulator_outstation_dnp3.service;
 
+import dev.boenkkk.simulator_outstation_dnp3.model.MeasurementRequestModel;
 import dev.boenkkk.simulator_outstation_dnp3.scheduler.SchedulerTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,7 +116,7 @@ public class DatapointService {
             // switch boolean for toggle scheduler
             boolean switchedBoolean = !value;
             log.info("boolean:{}, switchedBoolean:{}", value,switchedBoolean);
-            schedulerTask.toggleSchedulerTapChanger(switchedBoolean, 1);
+            schedulerTask.toggleScheduler("SCHEDULER_TAP_CHANGER", switchedBoolean, 1, 0, 0, 32);
 
             String endpoint = "0.0.0.0";
             Integer indexBO = 3;
@@ -145,10 +146,34 @@ public class DatapointService {
         }
     }
 
-    public Double getValueMeasurement() throws Exception {
+    public Map<String, Object> getValueMeasurement(String type, Integer indexValue, Integer indexAutoManual) throws Exception {
         try {
             String endpoint = "0.0.0.0";
-            return databaseService.getAnalogInput(endpoint, 1);
+
+            Map<String, Object> mapReturn = new HashMap<>();
+            mapReturn.put("type", type);
+            mapReturn.put("value", databaseService.getAnalogInput(endpoint, indexValue));
+            mapReturn.put("autoManual", databaseService.getBinaryInput(endpoint, indexAutoManual));
+
+            return mapReturn;
+        } catch (Exception e) {
+            log.error("error:{}", e.getMessage());
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    public Boolean updateMeasurementAutoManual(MeasurementRequestModel param) throws Exception{
+        try {
+            // switch boolean for toggle scheduler
+            boolean switchedBoolean = !param.getUpdateValueAutoManual();
+            log.info("boolean:{}, switchedBoolean:{}", param.getUpdateValueAutoManual(), switchedBoolean);
+            schedulerTask.toggleScheduler("SCHEDULER_"+param.getType(), switchedBoolean, 1, param.getIndexValue(), param.getMinValue(), param.getMaxValue());
+
+            String endpoint = "0.0.0.0";
+            databaseService.updateValueBinaryOutput(endpoint, param.getIndexCmdAutoManual(), param.getUpdateValueAutoManual());
+
+            databaseService.updateValueBinaryInput(endpoint, param.getIndexAutoManual(), param.getUpdateValueAutoManual());
+            return databaseService.getBinaryInput(endpoint, param.getIndexAutoManual());
         } catch (Exception e) {
             log.error("error:{}", e.getMessage());
             throw new Exception(e.getMessage());

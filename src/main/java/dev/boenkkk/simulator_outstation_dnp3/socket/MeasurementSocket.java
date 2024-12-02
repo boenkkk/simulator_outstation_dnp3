@@ -6,12 +6,15 @@ import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
+import dev.boenkkk.simulator_outstation_dnp3.model.MeasurementRequestModel;
 import dev.boenkkk.simulator_outstation_dnp3.service.DatapointService;
 import dev.boenkkk.simulator_outstation_dnp3.service.SocketIOService;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -30,7 +33,8 @@ public class MeasurementSocket {
     public void init() {
         measurementNamespace.addConnectListener(onConnected());
         measurementNamespace.addDisconnectListener(onDisconnected());
-        measurementNamespace.addEventListener("get-data", Void.class, getData());
+        measurementNamespace.addEventListener("get-data", MeasurementRequestModel.class, getData());
+        measurementNamespace.addEventListener("update-auto-manual", MeasurementRequestModel.class, updateAutoManual());
     }
 
     @OnConnect
@@ -59,15 +63,36 @@ public class MeasurementSocket {
         };
     }
 
-    private DataListener<Void> getData(){
+    private DataListener<MeasurementRequestModel> getData(){
         return (client, data, ackSender) -> {
             try {
                 String nameSpace = client.getNamespace().getName();
+                log.info("namespace: {}, data: {}", nameSpace, data);
 
-                Double valueMeasurement = datapointService.getValueMeasurement();
-                socketIOService.sendMessageSelf(client, "listen", valueMeasurement);
+                Map<String, Object> dataMeasurement = datapointService.getValueMeasurement(data.getType(), data.getIndexValue(), data.getIndexAutoManual());
+                log.info("dataMeasurement: {}", dataMeasurement);
 
-                log.info("namespace:{}, dataTapChanger:{}", nameSpace, valueMeasurement);
+                socketIOService.sendMessageSelf(client, "listen", dataMeasurement);
+
+                log.info("namespace:{}, dataMeasurement:{}", nameSpace, dataMeasurement);
+            } catch (Exception e) {
+                socketIOService.sendMessageSelf(client, "listen", e.getMessage());
+                log.error("error:{}", e.getMessage());
+            }
+        };
+    }
+
+    private DataListener<MeasurementRequestModel> updateAutoManual(){
+        return (client, data, ackSender) -> {
+            try {
+                log.info("data: {}", data);
+                String nameSpace = client.getNamespace().getName();
+
+                datapointService.updateMeasurementAutoManual(data);
+                Map<String, Object> dataTapChanger = datapointService.getDataTapChanger();
+                socketIOService.sendMessageSelf(client, "listen", dataTapChanger);
+
+                log.info("namepace:{}, data:{}, valueTapChanger:{}", nameSpace, data, dataTapChanger);
             } catch (Exception e) {
                 socketIOService.sendMessageSelf(client, "listen", e.getMessage());
                 log.error("error:{}", e.getMessage());

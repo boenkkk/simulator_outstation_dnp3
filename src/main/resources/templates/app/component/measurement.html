@@ -1,35 +1,134 @@
-<div th:fragment="measurement" class="measurement col-md-4 border border-dark rounded">
+<div th:fragment="measurement" class="measurement col-md-12 border border-dark rounded">
     <h5>Measurement</h5>
-    <div class="number-adjust-container" style="text-align: center; margin: 20px;">
-        <div style="display: inline-block; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
-            <!-- Display the number -->
-            <div id="measurement-number-display" style="font-size: 36px; font-weight: bold; margin-bottom: 10px;">0</div>
-        </div>
+
+    <div class="row col-md-12 justify-content-center" id="measurement-component">
     </div>
 
     <script>
         $(function () {
+            // TODO: RAISE / LOWER BUTTON ACTION
             let socketMeasurement = io(socketEndpoint + "/measurement");
-            let valueMeasurement;
+            let paramMeasurement = [
+                {"type": "VR", "indexValue": 1, "indexAutoManual": 4,  "indexCmdAutoManual": 5, "indexCmdRaiseLower": 6, "minValue": 309, "maxValue": 330},
+                {"type": "P", "indexValue": 2, "indexAutoManual": 5,  "indexCmdAutoManual": 7, "indexCmdRaiseLower": 8, "minValue": 300, "maxValue": 400},
+                {"type": "Q", "indexValue": 3, "indexAutoManual": 6,  "indexCmdAutoManual": 9, "indexCmdRaiseLower": 10, "minValue": 500, "maxValue": 600},
+                {"type": "PF", "indexValue": 4, "indexAutoManual": 7,  "indexCmdAutoManual": 11, "indexCmdRaiseLower": 12, "minValue": 0, "maxValue": 1},
+                {"type": "VS", "indexValue": 5, "indexAutoManual": 8,  "indexCmdAutoManual": 13, "indexCmdRaiseLower": 14, "minValue": 309, "maxValue": 330},
+                {"type": "VT", "indexValue": 6, "indexAutoManual": 9,  "indexCmdAutoManual": 15, "indexCmdRaiseLower": 16, "minValue": 309, "maxValue": 330},
+                {"type": "F", "indexValue": 7, "indexAutoManual": 10,  "indexCmdAutoManual": 17, "indexCmdRaiseLower": 18, "minValue": 49.5,"maxValue":  51.5},
+                {"type": "IR", "indexValue": 8, "indexAutoManual": 11,  "indexCmdAutoManual": 19, "indexCmdRaiseLower": 20, "minValue": 270, "maxValue": 289},
+                {"type": "IS", "indexValue": 9, "indexAutoManual": 12,  "indexCmdAutoManual": 21, "indexCmdRaiseLower": 22, "minValue": 270, "maxValue": 289},
+                {"type": "IT", "indexValue": 10, "indexAutoManual": 12,  "indexCmdAutoManual": 21, "indexCmdRaiseLower": 22, "minValue": 270, "maxValue": 289},
+            ];
 
-            socketMeasurement.on("connect", function () {
-                socketMeasurement.emit("get-data");
+            socketMeasurement.on("connect", function (){
+                paramMeasurement.forEach(function (param) {
+                    socketMeasurement.emit("get-data", param);
+                });
             });
 
             socketMeasurement.on("disconnect", function () {
             });
 
             socketMeasurement.on("listen", function (data) {
-                valueMeasurement = data.toFixed(2);
-                $("#measurement-number-display").text(valueMeasurement);
+                // Check if the component already exists
+                let componentId = `component-${data.type}`;
+                let existingComponent = $(`#${componentId}`);
+
+                // Find the matching parameter from paramMeasurement
+                console.log(paramMeasurement);
+                let param = paramMeasurement.find(p => p.type === data.type);
+                console.log(param);
+
+                if (existingComponent.length) {
+                    // Update the existing component
+                    existingComponent.find(".value-component").text(data.value.toFixed(2));
+                } else {
+                    // Add a new component if it doesn't exist
+                    $("#measurement-component").append(drawComponent(data.type, data.value, param.indexValue, param.indexAutoManual, param.indexCmdAutoManual, param.indexCmdRaiseLower));
+                }
+
+                disableButtonRaiseLower(data.type, data.autoManual);
             });
 
             setInterval(function() {
-                socketMeasurement.emit("get-data")
+                paramMeasurement.forEach(function (param) {
+                    socketMeasurement.emit("get-data", param);
+                });
             }, 1000);
 
-            socketMeasurement.on("connect_error", function (error) {
+            socketMeasurement.on("connect_error", function (error) {});
+
+            // switch auto / manual
+            $(document).on("click", "[id^='checkbox-automatic-manual-']", function () {
+                let type = this.id.replace("checkbox-automatic-manual-", "");
+                let isChecked = $(this).is(":checked");
+                let param = paramMeasurement.find(p => p.type === type);
+
+                if (param) {
+                    param.updateValueAutoManual = isChecked;
+                    console.log(isChecked ? "if isChecked" : "else isChecked");
+                    console.log(param);
+
+                    socketMeasurement.emit("update-auto-manual", param);
+                } else {
+                    console.error(`Parameter with type "${type}" not found.`);
+                }
             });
+
+            function drawComponent(type, value, indexValue, indexAutoManual, indexCmdAutoManual, indexCmdRaiseLower) {
+                let componentId = `component-${type}`;
+
+                return '' +
+                    '<div class="col-md-3" id="'+componentId+'">' +
+                    '            <div class="number-adjust-container" style="text-align: center; margin: 20px;">' +
+                    '                <div style="display: inline-block; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">' +
+                    '                    <div class="number-display">' +
+                    '                        <div class="label text-capitalize" style="margin-right: 8px;">'+type+':</div>' +
+                    '                        <div class="value-component">'+value.toFixed(2)+'</div>' +
+                    '                    </div>' +
+                    '                    <div class="d-flex justify-content-center mb-3">' +
+                    '                        <div class="control-knob dark mx-2">' +
+                    '                            <input type="checkbox" id="checkbox-automatic-manual-'+type+'">' +
+                    '                            <div class="control-position on">' +
+                    '                                <span>AUTO</span>' +
+                    '                            </div>' +
+                    '                            <div class="control-position off">' +
+                    '                                <span>MANUAL</span>' +
+                    '                            </div>' +
+                    '                            <div class="knob">' +
+                    '                                <div class="knob-center"></div>' +
+                    '                            </div>' +
+                    '                        </div>' +
+                    '                    </div>' +
+                    '                    <div>' +
+                    '                        <button class="adjust-button btn btn-success" id="button-increase-'+type+'">Raise</button>' +
+                    '                        <button class="adjust-button btn btn-danger" id="button-decrease-'+type+'">Lower</button>' +
+                    '                    </div>' +
+                    '                </div>' +
+                    '                <div class="row justify-content-center">' +
+                    '                    <table>' +
+                    '                        <tr>' +
+                    '                            <td>Value <span class="text-capitalize text-left">'+type+'</span></td>' +
+                    '                            <td>: Analog Input Index '+indexValue+' (IOA 3'+indexValue+')</td>' +
+                    '                        </tr>' +
+                    '                        <tr>' +
+                    '                            <td>Raise/Lower</td>' +
+                    '                            <td>: Binary Output Index '+indexCmdRaiseLower+' (IOA 2'+indexCmdRaiseLower+')</td>' +
+                    '                        </tr>' +
+                    '                    </table>' +
+                    '                </div>' +
+                    '            </div>' +
+                    '        </div>';
+            }
+
+            function disableButtonRaiseLower(type, value) {
+                if (value) {
+                    $("#button-increase-" + type + ", #button-decrease-" + type).removeAttr("disabled").attr("disabled", false);
+                } else {
+                    $("#button-increase-" + type + ", #button-decrease-" + type).removeAttr("disabled").attr("disabled", true);
+                }
+            }
         });
     </script>
 </div>

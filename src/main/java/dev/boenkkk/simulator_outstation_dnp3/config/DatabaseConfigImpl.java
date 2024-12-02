@@ -95,8 +95,8 @@ public class DatabaseConfigImpl {
             // 9 : IS 270 - 289
             // 10: IT 270 - 289
             AnalogInputConfig analogInputConfig = new AnalogInputConfig()
-                .withStaticVariation(StaticAnalogInputVariation.GROUP30_VAR4)
-                .withEventVariation(EventAnalogInputVariation.GROUP32_VAR4);
+                .withStaticVariation(StaticAnalogInputVariation.GROUP30_VAR5)
+                .withEventVariation(EventAnalogInputVariation.GROUP32_VAR7);
             db.addAnalogInput(ushort(i), EventClass.CLASS1, analogInputConfig);
 
             AnalogInput analogInput = new AnalogInput(ushort(i), 0.0, flags, timeNow);

@@ -76,7 +76,8 @@ public class DatapointService {
             String endpoint = "0.0.0.0";
 
             Map<String, Object> mapReturn = new HashMap<>();
-            mapReturn.put("valueTapChanger", databaseService.getAnalogInput(endpoint, 0));
+            double roundValue = Math.ceil(databaseService.getAnalogInput(endpoint, 0));
+            mapReturn.put("valueTapChanger", roundValue);
             mapReturn.put("valueTapChangerAutoManual", databaseService.getBinaryInput(endpoint, 2));
             mapReturn.put("valueTapChangerLocalRemote", databaseService.getBinaryInput(endpoint, 3));
 

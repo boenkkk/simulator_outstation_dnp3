@@ -20,7 +20,7 @@ public class DatabaseConfigImpl {
         db.defineStringAttr(ubyte(0), false, AttributeVariations.USER_ASSIGNED_OWNER_NAME, "BOENKKK.DEV");
         db.defineStringAttr(ubyte(0), true, AttributeVariations.PRODUCT_NAME_AND_MODEL, "SIMULATOR DNP3 OUTSTATION");
 
-        for (int i = 0; i < 24; i++) {
+        for (int i = 0; i <= 24; i++) {
             // TODO: NOTE BINARY_OUTPUT_STATUS(2)
             // 0 : CB Close / Open
             // 1 : Tap Changer Value Up
@@ -56,7 +56,7 @@ public class DatabaseConfigImpl {
             db.updateBinaryOutputStatus(binaryOutputStatus, updateOptions);
         }
 
-        for (int i = 0; i < 13; i++){
+        for (int i = 0; i <= 13; i++){
             // TODO: NOTE BINARY_INPUT(1)
             // 0 : CB Local / Remote
             // 1 : CB Close / Open
@@ -81,7 +81,7 @@ public class DatabaseConfigImpl {
             db.updateBinaryInput(binaryInput, updateOptions);
         }
 
-        for (int i = 0; i < 11; i++) {
+        for (int i = 0; i <= 10; i++) {
             // TODO: NOTE ANALOG_INPUT(3)
             // 0 : Tap Changer 0 - 32
             // 1 : VR 309 sd 330

@@ -8,18 +8,19 @@
         $(function () {
             // TODO: RAISE / LOWER BUTTON ACTION
             let socketMeasurement = io(socketEndpoint + "/measurement");
-            let paramMeasurement = [
-                {"type": "VR", "indexValue": 1, "indexAutoManual": 4,  "indexCmdAutoManual": 5, "indexCmdRaiseLower": 6, "minValue": 309, "maxValue": 330},
-                {"type": "P", "indexValue": 2, "indexAutoManual": 5,  "indexCmdAutoManual": 7, "indexCmdRaiseLower": 8, "minValue": 300, "maxValue": 400},
-                {"type": "Q", "indexValue": 3, "indexAutoManual": 6,  "indexCmdAutoManual": 9, "indexCmdRaiseLower": 10, "minValue": 500, "maxValue": 600},
-                {"type": "PF", "indexValue": 4, "indexAutoManual": 7,  "indexCmdAutoManual": 11, "indexCmdRaiseLower": 12, "minValue": 0, "maxValue": 1},
-                {"type": "VS", "indexValue": 5, "indexAutoManual": 8,  "indexCmdAutoManual": 13, "indexCmdRaiseLower": 14, "minValue": 309, "maxValue": 330},
-                {"type": "VT", "indexValue": 6, "indexAutoManual": 9,  "indexCmdAutoManual": 15, "indexCmdRaiseLower": 16, "minValue": 309, "maxValue": 330},
-                {"type": "F", "indexValue": 7, "indexAutoManual": 10,  "indexCmdAutoManual": 17, "indexCmdRaiseLower": 18, "minValue": 49.5,"maxValue":  51.5},
-                {"type": "IR", "indexValue": 8, "indexAutoManual": 11,  "indexCmdAutoManual": 19, "indexCmdRaiseLower": 20, "minValue": 270, "maxValue": 289},
-                {"type": "IS", "indexValue": 9, "indexAutoManual": 12,  "indexCmdAutoManual": 21, "indexCmdRaiseLower": 22, "minValue": 270, "maxValue": 289},
-                {"type": "IT", "indexValue": 10, "indexAutoManual": 12,  "indexCmdAutoManual": 21, "indexCmdRaiseLower": 22, "minValue": 270, "maxValue": 289},
-            ];
+
+            let paramMeasurement;
+            $.ajax({
+                url: '/config/data-measurement',
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    paramMeasurement = response;
+                },
+                error: function(error) {
+                    alert('Error fetching data:', error);
+                }
+            });
 
             socketMeasurement.on("connect", function (){
                 paramMeasurement.forEach(function (param) {

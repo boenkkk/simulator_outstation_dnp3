@@ -16,6 +16,22 @@
                 dataType: 'json',
                 success: function(response) {
                     paramMeasurement = response;
+
+                    // emit initial data requests after loading paramMeasurement
+                    if (paramMeasurement && Array.isArray(paramMeasurement)) {
+                        paramMeasurement.forEach(function (param) {
+                            socketMeasurement.emit("get-data", param);
+                        });
+
+                        // start interval for periodic data requests
+                        setInterval(function () {
+                            if (paramMeasurement) {
+                                paramMeasurement.forEach(function (param) {
+                                    socketMeasurement.emit("get-data", param);
+                                });
+                            }
+                        }, 1000);
+                    }
                 },
                 error: function(error) {
                     alert('Error fetching data:', error);
@@ -23,9 +39,11 @@
             });
 
             socketMeasurement.on("connect", function (){
-                paramMeasurement.forEach(function (param) {
-                    socketMeasurement.emit("get-data", param);
-                });
+                if (paramMeasurement) {
+                    paramMeasurement.forEach(function (param) {
+                        socketMeasurement.emit("get-data", param);
+                    });
+                }
             });
 
             socketMeasurement.on("disconnect", function () {
@@ -52,12 +70,6 @@
                 disableButtonRaiseLower(data.type, data.autoManual);
             });
 
-            setInterval(function() {
-                paramMeasurement.forEach(function (param) {
-                    socketMeasurement.emit("get-data", param);
-                });
-            }, 1000);
-
             socketMeasurement.on("connect_error", function (error) {});
 
             // switch auto / manual
@@ -69,7 +81,7 @@
                 // TODO: check this value
                 if (param) {
                     param.updateValueAutoManual = isChecked;
-                    checkboxAutoManualMeasurementCondition();
+                    checkboxAutoManualMeasurementCondition(type, isChecked);
 
                     socketMeasurement.emit("update-auto-manual", param);
                 } else {

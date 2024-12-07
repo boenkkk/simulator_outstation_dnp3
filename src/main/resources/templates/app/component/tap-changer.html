@@ -79,16 +79,16 @@
 
                 // auto/manual
                 if (dataTapChanger.valueTapChangerAutoManual){
-                    $("#checkbox-tap-changer-automatic-manual").attr("checked", true);
+                    $("#checkbox-tap-changer-automatic-manual").prop("checked", true);
                 } else {
-                    $("#checkbox-tap-changer-automatic-manual").attr("checked", false);
+                    $("#checkbox-tap-changer-automatic-manual").prop("checked", false);
                 }
 
                 // local/remote
                 if (dataTapChanger.valueTapChangerLocalRemote){
-                    $("#checkbox-tap-changer-local-remote").attr("checked", true);
+                    $("#checkbox-tap-changer-local-remote").prop("checked", true);
                 } else {
-                    $("#checkbox-tap-changer-local-remote").attr("checked", false);
+                    $("#checkbox-tap-changer-local-remote").prop("checked", false);
                 }
 
                 conditionTapChanger(dataTapChanger);
@@ -135,17 +135,17 @@
 
             function disableKnobTapChangerLocalRemote(value){
                 if (value){
-                    $("#checkbox-tap-changer-local-remote").removeAttr("disabled").attr("disabled", true).addClass("cursor-disabled");
+                    $("#checkbox-tap-changer-local-remote").prop("disabled", true).addClass("cursor-disabled");
                 } else {
-                    $("#checkbox-tap-changer-local-remote").removeAttr("disabled").attr("disabled", false).removeClass("cursor-disabled");
+                    $("#checkbox-tap-changer-local-remote").prop("disabled", false).removeClass("cursor-disabled");
                 }
             }
 
             function disableButtonRaiseLower(value) {
                 if (value) {
-                    $("#tap-changer-increase, #tap-changer-decrease").removeAttr("disabled").attr("disabled", true);
+                    $("#tap-changer-increase, #tap-changer-decrease").prop("disabled", true);
                 } else {
-                    $("#tap-changer-increase, #tap-changer-decrease").removeAttr("disabled").attr("disabled", false);
+                    $("#tap-changer-increase, #tap-changer-decrease").prop("disabled", false);
                 }
             }
         });

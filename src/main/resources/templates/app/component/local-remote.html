@@ -79,9 +79,9 @@
             // disable cb buttons
             function disableCBButtons(value) {
                 if (value) {
-                    $("#cb-open-close-btn-open, #cb-open-close-btn-close").removeAttr("disabled").attr("disabled", true);
+                    $("#cb-open-close-btn-open, #cb-open-close-btn-close").prop("disabled", true);
                 } else {
-                    $("#cb-open-close-btn-open, #cb-open-close-btn-close").removeAttr("disabled").attr("disabled", false);
+                    $("#cb-open-close-btn-open, #cb-open-close-btn-close").prop("disabled", false);
                 }
             }
         });

@@ -180,4 +180,26 @@ public class DatapointService {
             throw new Exception(e.getMessage());
         }
     }
+
+    public Double updateValueMeasurement(MeasurementRequestModel param) throws Exception {
+        log.info("param:{}", param);
+        try {
+            String endpoint = "0.0.0.0";
+
+            databaseService.updateValueBinaryOutput(endpoint, param.getIndexCmdRaiseLower(), param.getIsRaiseValue());
+            Double analogInputValue = databaseService.getAnalogInput(endpoint, param.getIndexValue());
+            if (param.getIsRaiseValue()) {
+                analogInputValue = analogInputValue + 1.0;
+                databaseService.updateValueAnalogInput(endpoint, param.getIndexValue(), analogInputValue);
+            } else {
+                analogInputValue = analogInputValue - 1.0;
+                databaseService.updateValueAnalogInput(endpoint, param.getIndexValue(), analogInputValue);
+            }
+
+            return analogInputValue;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new Exception(e.getMessage());
+        }
+    }
 }

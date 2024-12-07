@@ -6,7 +6,6 @@
 
     <script>
         $(function () {
-            // TODO: RAISE / LOWER BUTTON ACTION
             let socketMeasurement = io(socketEndpoint + "/measurement");
 
             let paramMeasurement;
@@ -78,7 +77,6 @@
                 let isChecked = $(this).is(":checked");
                 let param = paramMeasurement.find(p => p.type === type);
 
-                // TODO: check this value
                 if (param) {
                     param.updateValueAutoManual = isChecked;
                     checkboxAutoManualMeasurementCondition(type, isChecked);
@@ -88,6 +86,33 @@
                     console.error(`Parameter with type "${type}" not found.`);
                 }
             });
+
+            // raise value
+            $(document).on("click", "[id^='button-increase-']", function () {
+                let type = this.id.replace("button-increase-", "");
+                let param = paramMeasurement.find(p => p.type === type);
+
+                if (param) {
+                    param.isRaiseValue = true;
+                    socketMeasurement.emit("update-data", param);
+                } else {
+                    console.error(`Parameter with type "${type}" not found.`);
+                }
+            });
+
+            // lower value
+            $(document).on("click", "[id^='button-decrease-']", function () {
+                let type = this.id.replace("button-decrease-", "");
+                let param = paramMeasurement.find(p => p.type === type);
+
+                if (param) {
+                    param.isRaiseValue = false;
+                    socketMeasurement.emit("update-data", param);
+                } else {
+                    console.error(`Parameter with type "${type}" not found.`);
+                }
+            });
+
 
             function drawComponent(type, value, autoManual, indexValue, indexAutoManual, indexCmdAutoManual, indexCmdRaiseLower) {
                 let componentId = `component-${type}`;

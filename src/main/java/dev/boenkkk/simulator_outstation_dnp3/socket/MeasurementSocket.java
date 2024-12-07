@@ -35,6 +35,7 @@ public class MeasurementSocket {
         measurementNamespace.addDisconnectListener(onDisconnected());
         measurementNamespace.addEventListener("get-data", MeasurementRequestModel.class, getData());
         measurementNamespace.addEventListener("update-auto-manual", MeasurementRequestModel.class, updateAutoManual());
+        measurementNamespace.addEventListener("update-data", MeasurementRequestModel.class, updateData());
     }
 
     @OnConnect
@@ -89,6 +90,25 @@ public class MeasurementSocket {
                 String nameSpace = client.getNamespace().getName();
 
                 datapointService.updateMeasurementAutoManual(data);
+
+                Map<String, Object> dataMeasurement = datapointService.getValueMeasurement(data.getType(), data.getIndexValue(), data.getIndexAutoManual());
+                log.info("dataMeasurement: {}", dataMeasurement);
+                socketIOService.sendMessageSelf(client, "listen", dataMeasurement);
+
+                log.info("namepace:{}, data:{}, dataMeasurement:{}", nameSpace, data, dataMeasurement);
+            } catch (Exception e) {
+                socketIOService.sendMessageSelf(client, "listen", e.getMessage());
+                log.error("error:{}", e.getMessage());
+            }
+        };
+    }
+
+    private DataListener<MeasurementRequestModel> updateData(){
+        return (client, data, ackSender) -> {
+            try {
+                String nameSpace = client.getNamespace().getName();
+
+                datapointService.updateValueMeasurement(data);
 
                 Map<String, Object> dataMeasurement = datapointService.getValueMeasurement(data.getType(), data.getIndexValue(), data.getIndexAutoManual());
                 log.info("dataMeasurement: {}", dataMeasurement);

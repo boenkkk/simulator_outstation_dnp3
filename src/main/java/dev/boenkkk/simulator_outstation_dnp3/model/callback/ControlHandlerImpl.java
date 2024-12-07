@@ -126,6 +126,27 @@ public class ControlHandlerImpl implements ControlHandler {
                                 }
                             );
                     }
+                    // measurement raise / lower
+                    case 6, 8, 10, 12, 14, 16, 18, 20, 22, 24 -> {
+                        List<MeasurementRequestModel> measurementRequestModels = MeasurementRequestModel.paramMeasurement();
+                        measurementRequestModels.stream()
+                            .filter(data -> index.intValue() == data.getIndexCmdRaiseLower())
+                            .forEach(data -> {
+                                    try {
+                                        data.setIsRaiseValue(value);
+                                        datapointService.updateValueMeasurement(data);
+
+                                        Map<String, Object> dataMeasurement = datapointService.getValueMeasurement(data.getType(), data.getIndexValue(), data.getIndexAutoManual());
+                                        socketIOService.broadcastToDefaultRoom("/measurement", "listen", dataMeasurement);
+                                        commandStatus.set(CommandStatus.SUCCESS);
+                                    } catch (Exception e) {
+                                        log.error(e.getMessage());
+                                        commandStatus.set(CommandStatus.UNKNOWN);
+                                        throw new RuntimeException(e.getMessage());
+                                    }
+                                }
+                            );
+                    }
                     default -> commandStatus.set(CommandStatus.OUT_OF_RANGE);
                 }
             } else {

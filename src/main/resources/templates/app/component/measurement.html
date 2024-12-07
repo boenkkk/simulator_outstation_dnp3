@@ -37,16 +37,16 @@
                 let existingComponent = $(`#${componentId}`);
 
                 // Find the matching parameter from paramMeasurement
-                console.log(paramMeasurement);
                 let param = paramMeasurement.find(p => p.type === data.type);
-                console.log(param);
 
                 if (existingComponent.length) {
                     // Update the existing component
                     existingComponent.find(".value-component").text(data.value.toFixed(2));
+
+                    checkboxAutoManualMeasurementCondition(data.type, data.autoManual);
                 } else {
                     // Add a new component if it doesn't exist
-                    $("#measurement-component").append(drawComponent(data.type, data.value, param.indexValue, param.indexAutoManual, param.indexCmdAutoManual, param.indexCmdRaiseLower));
+                    $("#measurement-component").append(drawComponent(data.type, data.value, data.autoManual, param.indexValue, param.indexAutoManual, param.indexCmdAutoManual, param.indexCmdRaiseLower));
                 }
 
                 disableButtonRaiseLower(data.type, data.autoManual);
@@ -66,10 +66,10 @@
                 let isChecked = $(this).is(":checked");
                 let param = paramMeasurement.find(p => p.type === type);
 
+                // TODO: check this value
                 if (param) {
                     param.updateValueAutoManual = isChecked;
-                    console.log(isChecked ? "if isChecked" : "else isChecked");
-                    console.log(param);
+                    checkboxAutoManualMeasurementCondition();
 
                     socketMeasurement.emit("update-auto-manual", param);
                 } else {
@@ -77,57 +77,65 @@
                 }
             });
 
-            function drawComponent(type, value, indexValue, indexAutoManual, indexCmdAutoManual, indexCmdRaiseLower) {
+            function drawComponent(type, value, autoManual, indexValue, indexAutoManual, indexCmdAutoManual, indexCmdRaiseLower) {
                 let componentId = `component-${type}`;
 
                 return '' +
-                    '<div class="col-md-3" id="'+componentId+'">' +
-                    '            <div class="number-adjust-container" style="text-align: center; margin: 20px;">' +
-                    '                <div style="display: inline-block; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">' +
-                    '                    <div class="number-display">' +
-                    '                        <div class="label text-capitalize" style="margin-right: 8px;">'+type+':</div>' +
-                    '                        <div class="value-component">'+value.toFixed(2)+'</div>' +
+                    '<div class="col-md-2" id="'+componentId+'">' +
+                    '   <div class="number-adjust-container" style="text-align: center; margin: 20px;">' +
+                    '        <div style="display: inline-block; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">' +
+                    '            <div class="number-display">' +
+                    '                <div class="label text-capitalize" style="margin-right: 8px;">'+type+':</div>' +
+                    '                <div class="value-component">'+value.toFixed(2)+'</div>' +
+                    '            </div>' +
+                    '            <div class="d-flex justify-content-center mb-3">' +
+                    '                <div class="control-knob dark mx-2">' +
+                    '                    <input type="checkbox" id="checkbox-automatic-manual-'+type+'" ' + (autoManual ? 'checked' : '') + '>' +
+                    '                    <div class="control-position on">' +
+                    '                        <span>AUTO</span>' +
                     '                    </div>' +
-                    '                    <div class="d-flex justify-content-center mb-3">' +
-                    '                        <div class="control-knob dark mx-2">' +
-                    '                            <input type="checkbox" id="checkbox-automatic-manual-'+type+'">' +
-                    '                            <div class="control-position on">' +
-                    '                                <span>AUTO</span>' +
-                    '                            </div>' +
-                    '                            <div class="control-position off">' +
-                    '                                <span>MANUAL</span>' +
-                    '                            </div>' +
-                    '                            <div class="knob">' +
-                    '                                <div class="knob-center"></div>' +
-                    '                            </div>' +
-                    '                        </div>' +
+                    '                    <div class="control-position off">' +
+                    '                        <span>MANUAL</span>' +
                     '                    </div>' +
-                    '                    <div>' +
-                    '                        <button class="adjust-button btn btn-success" id="button-increase-'+type+'">Raise</button>' +
-                    '                        <button class="adjust-button btn btn-danger" id="button-decrease-'+type+'">Lower</button>' +
+                    '                    <div class="knob">' +
+                    '                        <div class="knob-center"></div>' +
                     '                    </div>' +
-                    '                </div>' +
-                    '                <div class="row justify-content-center">' +
-                    '                    <table>' +
-                    '                        <tr>' +
-                    '                            <td>Value <span class="text-capitalize text-left">'+type+'</span></td>' +
-                    '                            <td>: Analog Input Index '+indexValue+' (IOA 3'+indexValue+')</td>' +
-                    '                        </tr>' +
-                    '                        <tr>' +
-                    '                            <td>Raise/Lower</td>' +
-                    '                            <td>: Binary Output Index '+indexCmdRaiseLower+' (IOA 2'+indexCmdRaiseLower+')</td>' +
-                    '                        </tr>' +
-                    '                    </table>' +
                     '                </div>' +
                     '            </div>' +
-                    '        </div>';
+                    '            <div>' +
+                    '                <button class="adjust-button btn btn-success" id="button-increase-'+type+'">Raise</button>' +
+                    '                <button class="adjust-button btn btn-danger" id="button-decrease-'+type+'">Lower</button>' +
+                    '            </div>' +
+                    '        </div>' +
+                    '        <div class="row justify-content-center">' +
+                    '            <table>' +
+                    '                <tr>' +
+                    '                    <td>Value <span class="text-capitalize text-left">'+type+'</span></td>' +
+                    '                    <td>: AI Index '+indexValue+' (IOA 3'+indexValue+')</td>' +
+                    '                </tr>' +
+                    '                <tr>' +
+                    '                    <td>Raise/Lower</td>' +
+                    '                    <td>: BO Index '+indexCmdRaiseLower+' (IOA 2'+indexCmdRaiseLower+')</td>' +
+                    '                </tr>' +
+                    '            </table>' +
+                    '        </div>' +
+                    '    </div>' +
+                    '</div>';
+            }
+
+            function checkboxAutoManualMeasurementCondition(type, value) {
+                if (value) {
+                    $("#checkbox-automatic-manual-" + type).prop("checked", true);
+                } else {
+                    $("#checkbox-automatic-manual-" + type).prop("checked", false);
+                }
             }
 
             function disableButtonRaiseLower(type, value) {
                 if (value) {
-                    $("#button-increase-" + type + ", #button-decrease-" + type).removeAttr("disabled").attr("disabled", false);
+                    $("#button-increase-" + type + ", #button-decrease-" + type).prop("disabled", false);
                 } else {
-                    $("#button-increase-" + type + ", #button-decrease-" + type).removeAttr("disabled").attr("disabled", true);
+                    $("#button-increase-" + type + ", #button-decrease-" + type).prop("disabled", true);
                 }
             }
         });

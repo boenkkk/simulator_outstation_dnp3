@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping("/dashboard")
+@RequestMapping("/")
 @Slf4j
 public class DashboardController {
 
-    @GetMapping(value = "")
+    @GetMapping({"", "/dashboard"})
     public ModelAndView index(ModelMap modelMap) {
         return new ModelAndView("app/dashboard", modelMap);
     }

@@ -19,6 +19,7 @@ services:
             - "47770:20000"
             - "47771:47771"
             - "47772:47772"
+        restart: always
 
 networks:
     app-tier:

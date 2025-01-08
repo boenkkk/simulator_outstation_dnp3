@@ -23,6 +23,7 @@ public class OutstationRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+        log.info("dnp3Properties: {}", dnp3Properties);
         Dnp3ServerOutstationModel outstation = new Dnp3ServerOutstationModel();
         outstation.setSlaveAddress(dnp3Properties.getOutstationAddress());
         outstation.setMasterAddress(dnp3Properties.getMasterAddress());

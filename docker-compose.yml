@@ -7,6 +7,12 @@ services:
         image: simulator_outstation_dnp3
         environment:
             - SPRING_PROFILES_ACTIVE
+            - APP_DNP3_OUTSTATION-TYPE=TCP
+            - APP_DNP3_OUTSTATION-ID=1
+            - APP_DNP3_OUTSTATION-PORT=20000
+            - APP_DNP3_OUTSTATION-SERIAL-PORT=COM17
+            - APP_DNP3_OUTSTATION-ADDRESS=1
+            - APP_DNP3_MASTER-ADDRESS=2
         build:
             context: .
             dockerfile: DOCKERFILE

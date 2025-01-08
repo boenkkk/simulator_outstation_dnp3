@@ -50,13 +50,15 @@ public class SchedulerTask {
      * Inner class to represent a single scheduler instance
      */
     private class SchedulerInstance {
+        private final String outstationId;
         private final String key;
         private final int index;
         private final double minValue;
         private final double maxValue;
         private ScheduledFuture<?> scheduledTask;
 
-        public SchedulerInstance(String key, int index, double minValue, double maxValue) {
+        public SchedulerInstance(String outstationId, String key, int index, double minValue, double maxValue) {
+            this.outstationId = outstationId;
             this.key = key;
             this.index = index;
             this.minValue = minValue;
@@ -66,7 +68,7 @@ public class SchedulerTask {
         public void execute() {
             try {
                 databaseService.updateValueAnalogInput(
-                    "0.0.0.0",
+                    outstationId,
                     index,
                     randomUtil.getRandomDouble(minValue, maxValue)
                 );
@@ -93,6 +95,7 @@ public class SchedulerTask {
      * @param maxValue Maximum random value
      */
     public synchronized void toggleScheduler(
+        String outstationId,
         String key,
         boolean enable,
         int interval,
@@ -109,7 +112,7 @@ public class SchedulerTask {
             }
 
             // Create new scheduler instance
-            SchedulerInstance scheduler = new SchedulerInstance(key, index, minValue, maxValue);
+            SchedulerInstance scheduler = new SchedulerInstance(outstationId, key, index, minValue, maxValue);
 
             // Schedule the task
             ScheduledFuture<?> scheduledTask = taskScheduler.scheduleAtFixedRate(

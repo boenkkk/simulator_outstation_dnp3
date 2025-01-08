@@ -16,9 +16,9 @@ public class DatabaseService {
     @Autowired
     private OutstationsService outstationsService;
 
-    public Boolean getBinaryInput(String endpoint, Integer index){
+    public Boolean getBinaryInput(String outstationId, Integer index){
         AtomicReference<Boolean> returnValue = new AtomicReference<>(false);
-        outstationsService.getoOutstationData(endpoint).ifPresent(
+        outstationsService.getoOutstationData(outstationId).ifPresent(
             outstationData -> {
                 outstationData.getOutstation().transaction(
                 db -> {
@@ -29,8 +29,8 @@ public class DatabaseService {
         return returnValue.get();
     }
 
-    public void updateValueBinaryInput(String endpoint, Integer index, Boolean value){
-        outstationsService.getoOutstationData(endpoint).ifPresent(
+    public void updateValueBinaryInput(String outstationId, Integer index, Boolean value){
+        outstationsService.getoOutstationData(outstationId).ifPresent(
             outstationData -> {
                 outstationData.getOutstation().transaction(
                     db -> {
@@ -42,8 +42,8 @@ public class DatabaseService {
         );
     }
 
-    public void updateValueBinaryOutput(String endpoint, Integer index, Boolean value){
-        outstationsService.getoOutstationData(endpoint).ifPresent(
+    public void updateValueBinaryOutput(String outstationId, Integer index, Boolean value){
+        outstationsService.getoOutstationData(outstationId).ifPresent(
             outstationData -> {
                 outstationData.getOutstation().transaction(
                     db -> {
@@ -55,9 +55,9 @@ public class DatabaseService {
         );
     }
 
-    public Double getAnalogInput(String enpoint, Integer index){
+    public Double getAnalogInput(String outstationId, Integer index){
         AtomicReference<Double> returnValue = new AtomicReference<>(0.0);
-        outstationsService.getoOutstationData(enpoint).ifPresent(
+        outstationsService.getoOutstationData(outstationId).ifPresent(
             outstationData -> {
                 outstationData.getOutstation().transaction(
                     db -> {
@@ -69,8 +69,8 @@ public class DatabaseService {
         return returnValue.get();
     }
 
-    public void updateValueAnalogInput(String endpoint, Integer index, Double value){
-        outstationsService.getoOutstationData(endpoint).ifPresent(
+    public void updateValueAnalogInput(String outstationId, Integer index, Double value){
+        outstationsService.getoOutstationData(outstationId).ifPresent(
             outstationData -> {
                 outstationData.getOutstation().transaction(
                     db -> {

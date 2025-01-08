@@ -23,18 +23,31 @@ public class OutstationRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        // get outstations
         Dnp3ServerOutstationModel outstation = new Dnp3ServerOutstationModel();
-        outstation.setTcpSourceIpAddress(dnp3Properties.getOutstationHost());
-        outstation.setTcpPortNumber(dnp3Properties.getOutstationPort());
         outstation.setSlaveAddress(dnp3Properties.getOutstationAddress());
         outstation.setMasterAddress(dnp3Properties.getMasterAddress());
-        log.info("outstation: {}", outstation);
 
-        // add server
-        serverService.addServer(outstation);
+        if (dnp3Properties.getOutstationType().equals("TCP")) {
+            // get outstations
+            outstation.setTcpSourceIpAddress(dnp3Properties.getOutstationHost());
+            outstation.setTcpPortNumber(dnp3Properties.getOutstationPort());
+            log.info("outstation: {}", outstation);
 
-        // run scheduler
-        serverService.runScheduller();
+            // add server
+            String outstationId = serverService.addTcpServer(outstation);
+
+            // run scheduler
+            serverService.runScheduller(outstationId);
+        } else if (dnp3Properties.getOutstationType().equals("SERIAL")) {
+            // get outstations
+            outstation.setSerialPort(dnp3Properties.getOutstationSerialPort());
+            log.info("outstation: {}", outstation);
+
+            // add server
+            String outstationId = serverService.addSerialServer(outstation);
+
+            // run scheduler
+            serverService.runScheduller(outstationId);
+        }
     }
 }

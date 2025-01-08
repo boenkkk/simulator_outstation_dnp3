@@ -7,13 +7,25 @@ services:
         image: simulator_outstation_dnp3
         environment:
             - SPRING_PROFILES_ACTIVE
+            - APP_DNP3_OUTSTATION-TYPE=TCP
+            - APP_DNP3_OUTSTATION-ID=1
+            - APP_DNP3_OUTSTATION-PORT=20000
+            - APP_DNP3_OUTSTATION-SERIAL-PORT=COM17
+            - APP_DNP3_OUTSTATION-ADDRESS=1
+            - APP_DNP3_MASTER-ADDRESS=2
         build:
             context: .
             dockerfile: DOCKERFILE
         networks:
-            - app-tier
+            app-tier:
+                ipv4_address: 10.0.11.139
         volumes:
             - /home/docker-container-logs/simulator_outstation_dnp3:/app/logs
+        ports:
+            - "47770:20000"
+            - "47771:47771"
+            - "47772:47772"
+        restart: always
 
 networks:
     app-tier:

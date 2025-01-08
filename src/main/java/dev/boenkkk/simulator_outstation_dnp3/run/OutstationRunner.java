@@ -1,12 +1,12 @@
 package dev.boenkkk.simulator_outstation_dnp3.run;
 
 import dev.boenkkk.simulator_outstation_dnp3.model.Dnp3ServerOutstationModel;
+import dev.boenkkk.simulator_outstation_dnp3.properties.Dnp3Properties;
 import dev.boenkkk.simulator_outstation_dnp3.service.ServerService;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
@@ -18,31 +18,37 @@ public class OutstationRunner implements ApplicationRunner {
     @Autowired
     private ServerService serverService;
 
-    @Value("${app.dnp3.outstation-host}")
-    private String outstationHost;
-
-    @Value("${app.dnp3.outstation-port}")
-    private String outstationPort;
-
-    @Value("${app.dnp3.outstation-address}")
-    private String outstationAddress;
-
-    @Value("${app.dnp3.master-address}")
-    private String masterAddress;
+    @Autowired
+    private Dnp3Properties dnp3Properties;
 
     @Override
     public void run(ApplicationArguments args) {
-        // get outstations
-        log.info("outstation: {}|{}|{}|{}", outstationHost, outstationPort, outstationAddress, masterAddress);
-
+        log.info("dnp3Properties: {}", dnp3Properties);
         Dnp3ServerOutstationModel outstation = new Dnp3ServerOutstationModel();
-        outstation.setTcpSourceIpAddress(outstationHost);
-        outstation.setTcpPortNumber(Integer.valueOf(outstationPort));
-        outstation.setSlaveAddress(Integer.valueOf(outstationAddress));
-        outstation.setMasterAddress(Integer.valueOf(masterAddress));
-        log.info("outstation: {}", outstation);
+        outstation.setSlaveAddress(dnp3Properties.getOutstationAddress());
+        outstation.setMasterAddress(dnp3Properties.getMasterAddress());
 
-        // add server
-        serverService.addServer(outstation);
+        if (dnp3Properties.getOutstationType().equals("TCP")) {
+            // get outstations
+            outstation.setTcpSourceIpAddress(dnp3Properties.getOutstationHost());
+            outstation.setTcpPortNumber(dnp3Properties.getOutstationPort());
+            log.info("outstation: {}", outstation);
+
+            // add server
+            String outstationId = serverService.addTcpServer(outstation);
+
+            // run scheduler
+            serverService.runScheduller(outstationId);
+        } else if (dnp3Properties.getOutstationType().equals("SERIAL")) {
+            // get outstations
+            outstation.setSerialPort(dnp3Properties.getOutstationSerialPort());
+            log.info("outstation: {}", outstation);
+
+            // add server
+            String outstationId = serverService.addSerialServer(outstation);
+
+            // run scheduler
+            serverService.runScheduller(outstationId);
+        }
     }
 }

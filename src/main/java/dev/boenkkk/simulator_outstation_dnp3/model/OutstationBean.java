@@ -19,7 +19,6 @@ public class OutstationBean {
     @Builder
     public static class OutstationData {
 
-        private final OutstationServer outstationServer;
         private final Outstation outstation;
     }
 }

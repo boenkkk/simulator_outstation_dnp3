@@ -21,6 +21,11 @@
 	</parent>
 
 	<dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
         <!-- exclude logback , add log4j2 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -59,7 +64,7 @@
         <dependency>
             <groupId>io.stepfunc</groupId>
             <artifactId>dnp3</artifactId>
-            <version>1.5.2</version>
+            <version>1.6.0</version>
         </dependency>
 
         <dependency>
@@ -76,6 +81,12 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.14.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.corundumstudio.socketio</groupId>
+            <artifactId>netty-socketio</artifactId>
+            <version>1.7.19</version>
         </dependency>
 	</dependencies>
 

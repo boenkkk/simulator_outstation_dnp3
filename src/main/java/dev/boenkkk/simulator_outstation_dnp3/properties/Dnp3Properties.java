@@ -11,6 +11,13 @@ public class Dnp3Properties {
     private String outstationName;
     private String outstationNetworkInterface;
     private String outstationProtocol;
+    private String outstationType;
+
+    private String outstationHost;
+    private int outstationPort;
+    private String outstationSerialPort;
+    private int outstationAddress;
+    private int masterAddress;
 
     private int keepAliveTimeout;
     private int numCoreThreads;

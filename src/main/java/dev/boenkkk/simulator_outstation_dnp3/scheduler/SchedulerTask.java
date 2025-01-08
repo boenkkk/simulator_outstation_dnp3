@@ -1,79 +1,155 @@
 package dev.boenkkk.simulator_outstation_dnp3.scheduler;
 
-import dev.boenkkk.simulator_outstation_dnp3.util.TimeUtil;
-import io.stepfunc.dnp3.*;
+import dev.boenkkk.simulator_outstation_dnp3.service.DatabaseService;
+import dev.boenkkk.simulator_outstation_dnp3.util.RandomUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.joou.UByte;
-import org.joou.UShort;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.time.Duration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
-import static org.joou.Unsigned.*;
 
 @Component
+@Configuration
 @Slf4j
 public class SchedulerTask {
 
-    private final Random random = new Random();
+    @Autowired
+    private RandomUtil randomUtil;
 
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    @Autowired
+    private DatabaseService databaseService;
 
-    private ScheduledFuture<?> scheduledTask; // To track the scheduled task
+    @Autowired
+    private TaskScheduler taskScheduler;
 
-    private boolean isEnabled = true;  // To control whether updates run
+    // Store active schedulers
+    private final Map<String, SchedulerInstance> schedulers = new ConcurrentHashMap<>();
 
-    private UShort getRandomIndex() {
-        return ushort(random.nextInt(3));
+    /**
+     * Configure task scheduler bean
+     */
+    @Bean
+    public TaskScheduler taskScheduler() {
+        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(10);
+        scheduler.setThreadNamePrefix("scheduler-");
+        scheduler.setAwaitTerminationSeconds(60);
+        scheduler.setWaitForTasksToCompleteOnShutdown(true);
+        scheduler.initialize();
+        return scheduler;
     }
 
-    private boolean getRandomBoolean() {
-        return random.nextBoolean();
-    }
+    /**
+     * Inner class to represent a single scheduler instance
+     */
+    private class SchedulerInstance {
+        private final String outstationId;
+        private final String key;
+        private final int index;
+        private final double minValue;
+        private final double maxValue;
+        private ScheduledFuture<?> scheduledTask;
 
-    private double getRandomDouble(double min, double max) {
-        return min + (max - min) * random.nextDouble();
-    }
+        public SchedulerInstance(String outstationId, String key, int index, double minValue, double maxValue) {
+            this.outstationId = outstationId;
+            this.key = key;
+            this.index = index;
+            this.minValue = minValue;
+            this.maxValue = maxValue;
+        }
 
-    private long getRandomLong(long min, long max) {
-        return min + (long) (random.nextDouble() * (max - min));
-    }
-
-    private void generateRandomUpdates(Outstation outstation) {
-        if (!isEnabled) return;  // Skip execution if the outstation is disabled
-
-        final Flags onlineFlags = new Flags(Flag.ONLINE);
-        final UpdateOptions detectEvent = UpdateOptions.detectEvent();
-        UShort index = getRandomIndex();
-
-        outstation.transaction(db -> {
-            // db.updateBinaryOutputStatus(new BinaryOutputStatus(index, getRandomBoolean(), onlineFlags, TimeUtil.now()), detectEvent);
-            // db.updateAnalogOutputStatus(new AnalogOutputStatus(index, getRandomDouble(0.0, 100.0), onlineFlags, TimeUtil.now()), detectEvent);
-            db.updateBinaryInput(new BinaryInput(index, getRandomBoolean(), onlineFlags, TimeUtil.now()), detectEvent);
-            db.updateDoubleBitBinaryInput(new DoubleBitBinaryInput(index, getRandomBoolean() ? DoubleBit.DETERMINED_ON : DoubleBit.DETERMINED_OFF, onlineFlags, TimeUtil.now()), detectEvent);
-            db.updateCounter(new Counter(index, uint(getRandomLong(0, 1000)), onlineFlags, TimeUtil.now()), detectEvent);
-            db.updateFrozenCounter(new FrozenCounter(index, uint(getRandomLong(0, 1000)), onlineFlags, TimeUtil.now()), detectEvent);
-            db.updateAnalogInput(new AnalogInput(index, getRandomDouble(0.0, 100.0), onlineFlags, TimeUtil.now()), detectEvent);
-
-            List<UByte> octetString = new ArrayList<>();
-            for (byte octet : "Hello".getBytes(StandardCharsets.US_ASCII)) {
-                octetString.add(ubyte(octet));
+        public void execute() {
+            try {
+                databaseService.updateValueAnalogInput(
+                    outstationId,
+                    index,
+                    randomUtil.getRandomDouble(minValue, maxValue)
+                );
+            } catch (Exception e) {
+                log.error("Error executing task for scheduler {}: {}", key, e.getMessage(), e);
             }
-            db.updateOctetString(index, octetString, detectEvent);
-        });
+        }
+
+        public void stop() {
+            if (scheduledTask != null) {
+                scheduledTask.cancel(true);
+            }
+        }
     }
 
-    // Start the scheduled task to generate random updates every second
-    public void startScheduledTask(Outstation outstation) {
-        scheduledTask = scheduler.scheduleAtFixedRate(
-            () -> generateRandomUpdates(outstation), 0, 1, TimeUnit.SECONDS
-        );
+    /**
+     * Create or toggle a scheduler
+     *
+     * @param key Unique identifier for the scheduler
+     * @param enable Whether to enable or disable the scheduler
+     * @param interval Interval in seconds between task executions
+     * @param index Analog input index
+     * @param minValue Minimum random value
+     * @param maxValue Maximum random value
+     */
+    public synchronized void toggleScheduler(
+        String outstationId,
+        String key,
+        boolean enable,
+        int interval,
+        int index,
+        double minValue,
+        double maxValue
+    ) {
+        if (enable) {
+            // Stop existing scheduler if it exists
+            SchedulerInstance existingScheduler = schedulers.get(key);
+            if (existingScheduler != null) {
+                existingScheduler.stop();
+                schedulers.remove(key);
+            }
+
+            // Create new scheduler instance
+            SchedulerInstance scheduler = new SchedulerInstance(outstationId, key, index, minValue, maxValue);
+
+            // Schedule the task
+            ScheduledFuture<?> scheduledTask = taskScheduler.scheduleAtFixedRate(
+                scheduler::execute,
+                Duration.ofSeconds(interval)
+            );
+            scheduler.scheduledTask = scheduledTask;
+
+            // Store the scheduler
+            schedulers.put(key, scheduler);
+
+            log.info("Scheduler {} enabled with interval: {} seconds.", key, interval);
+        } else {
+            // Disable and remove scheduler
+            SchedulerInstance scheduler = schedulers.get(key);
+            if (scheduler != null) {
+                scheduler.stop();
+                schedulers.remove(key);
+                log.info("Scheduler {} disabled.", key);
+            }
+        }
+    }
+
+    /**
+     * Get the number of active schedulers
+     *
+     * @return Number of active schedulers
+     */
+    public int getActiveSchedulersCount() {
+        return schedulers.size();
+    }
+
+    /**
+     * Shutdown all schedulers
+     */
+    public void shutdownAll() {
+        schedulers.values().forEach(SchedulerInstance::stop);
+        schedulers.clear();
     }
 }

@@ -1,0 +1,180 @@
+<div th:fragment="measurement" class="measurement col-md-12 border border-dark rounded">
+    <h5>Measurement</h5>
+
+    <div class="row col-md-12 justify-content-center" id="measurement-component">
+    </div>
+
+    <script>
+        $(function () {
+            let socketMeasurement = io(socketEndpoint + "/measurement");
+
+            let paramMeasurement;
+            $.ajax({
+                url: '/config/data-measurement',
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    paramMeasurement = response;
+
+                    // emit initial data requests after loading paramMeasurement
+                    if (paramMeasurement && Array.isArray(paramMeasurement)) {
+                        paramMeasurement.forEach(function (param) {
+                            socketMeasurement.emit("get-data", param);
+                        });
+
+                        // start interval for periodic data requests
+                        setInterval(function () {
+                            if (paramMeasurement) {
+                                paramMeasurement.forEach(function (param) {
+                                    socketMeasurement.emit("get-data", param);
+                                });
+                            }
+                        }, 1000);
+                    }
+                },
+                error: function(error) {
+                    alert('Error fetching data:', error);
+                }
+            });
+
+            socketMeasurement.on("connect", function (){
+                if (paramMeasurement) {
+                    paramMeasurement.forEach(function (param) {
+                        socketMeasurement.emit("get-data", param);
+                    });
+                }
+            });
+
+            socketMeasurement.on("disconnect", function () {
+            });
+
+            socketMeasurement.on("listen", function (data) {
+                // Check if the component already exists
+                let componentId = `component-${data.type}`;
+                let existingComponent = $(`#${componentId}`);
+
+                // Find the matching parameter from paramMeasurement
+                let param = paramMeasurement.find(p => p.type === data.type);
+
+                if (existingComponent.length) {
+                    // Update the existing component
+                    existingComponent.find(".value-component").text(data.value.toFixed(2));
+
+                    checkboxAutoManualMeasurementCondition(data.type, data.autoManual);
+                } else {
+                    // Add a new component if it doesn't exist
+                    $("#measurement-component").append(drawComponent(data.type, data.value, data.autoManual, param.indexValue, param.indexAutoManual, param.indexCmdAutoManual, param.indexCmdRaiseLower));
+                }
+
+                disableButtonRaiseLower(data.type, data.autoManual);
+            });
+
+            socketMeasurement.on("connect_error", function (error) {});
+
+            // switch auto / manual
+            $(document).on("click", "[id^='checkbox-automatic-manual-']", function () {
+                let type = this.id.replace("checkbox-automatic-manual-", "");
+                let isChecked = $(this).is(":checked");
+                let param = paramMeasurement.find(p => p.type === type);
+
+                if (param) {
+                    param.updateValueAutoManual = isChecked;
+                    checkboxAutoManualMeasurementCondition(type, isChecked);
+
+                    socketMeasurement.emit("update-auto-manual", param);
+                } else {
+                    console.error(`Parameter with type "${type}" not found.`);
+                }
+            });
+
+            // raise value
+            $(document).on("click", "[id^='button-increase-']", function () {
+                let type = this.id.replace("button-increase-", "");
+                let param = paramMeasurement.find(p => p.type === type);
+
+                if (param) {
+                    param.isRaiseValue = true;
+                    socketMeasurement.emit("update-data", param);
+                } else {
+                    console.error(`Parameter with type "${type}" not found.`);
+                }
+            });
+
+            // lower value
+            $(document).on("click", "[id^='button-decrease-']", function () {
+                let type = this.id.replace("button-decrease-", "");
+                let param = paramMeasurement.find(p => p.type === type);
+
+                if (param) {
+                    param.isRaiseValue = false;
+                    socketMeasurement.emit("update-data", param);
+                } else {
+                    console.error(`Parameter with type "${type}" not found.`);
+                }
+            });
+
+
+            function drawComponent(type, value, autoManual, indexValue, indexAutoManual, indexCmdAutoManual, indexCmdRaiseLower) {
+                let componentId = `component-${type}`;
+
+                return '' +
+                    '<div class="col-md-2" id="'+componentId+'">' +
+                    '   <div class="number-adjust-container" style="text-align: center; margin: 20px;">' +
+                    '        <div style="display: inline-block; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">' +
+                    '            <div class="number-display">' +
+                    '                <div class="label text-capitalize" style="margin-right: 8px;">'+type+':</div>' +
+                    '                <div class="value-component">'+value.toFixed(2)+'</div>' +
+                    '            </div>' +
+                    '            <div class="d-flex justify-content-center mb-3">' +
+                    '                <div class="control-knob dark mx-2">' +
+                    '                    <input type="checkbox" id="checkbox-automatic-manual-'+type+'" ' + (autoManual ? 'checked' : '') + '>' +
+                    '                    <div class="control-position on">' +
+                    '                        <span>AUTO</span>' +
+                    '                    </div>' +
+                    '                    <div class="control-position off">' +
+                    '                        <span>MANUAL</span>' +
+                    '                    </div>' +
+                    '                    <div class="knob">' +
+                    '                        <div class="knob-center"></div>' +
+                    '                    </div>' +
+                    '                </div>' +
+                    '            </div>' +
+                    '            <div>' +
+                    '                <button class="adjust-button btn btn-success" id="button-increase-'+type+'">Raise</button>' +
+                    '                <button class="adjust-button btn btn-danger" id="button-decrease-'+type+'">Lower</button>' +
+                    '            </div>' +
+                    '        </div>' +
+                    '        <div class="row justify-content-center">' +
+                    '            <table>' +
+                    '                <tr>' +
+                    '                    <td>Value <span class="text-capitalize text-left">'+type+'</span></td>' +
+                    '                    <td>: AI Index '+indexValue+' (IOA 3'+indexValue+')</td>' +
+                    '                </tr>' +
+                    '                <tr>' +
+                    '                    <td>Raise/Lower</td>' +
+                    '                    <td>: BO Index '+indexCmdRaiseLower+' (IOA 2'+indexCmdRaiseLower+')</td>' +
+                    '                </tr>' +
+                    '            </table>' +
+                    '        </div>' +
+                    '    </div>' +
+                    '</div>';
+            }
+
+            function checkboxAutoManualMeasurementCondition(type, value) {
+                if (value) {
+                    $("#checkbox-automatic-manual-" + type).prop("checked", true);
+                } else {
+                    $("#checkbox-automatic-manual-" + type).prop("checked", false);
+                }
+            }
+
+            function disableButtonRaiseLower(type, value) {
+                if (value) {
+                    $("#button-increase-" + type + ", #button-decrease-" + type).prop("disabled", false);
+                } else {
+                    $("#button-increase-" + type + ", #button-decrease-" + type).prop("disabled", true);
+                }
+            }
+        });
+    </script>
+</div>

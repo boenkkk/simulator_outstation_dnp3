@@ -9,10 +9,10 @@
             </div>
 
             <div class="row justify-content-center">
-                <button id="cb-invalid-0" class="btn btn-warning rounded-circle small-btn">INV 0</button>
+                <button id="cb-invalid-0" class="btn btn-secondary rounded-circle small-btn">INV0</button>
                 <button id="cb-open-close-btn-close" class="btn btn-success rounded-circle fixed-wh-5em">Close</button>
                 <button id="cb-open-close-btn-open" class="btn btn-danger rounded-circle fixed-wh-5em">Open</button>
-                <button id="cb-invalid-1" class="btn btn-warning rounded-circle small-btn">INV 1</button>
+                <button id="cb-invalid-3" class="btn btn-secondary rounded-circle small-btn">INV3</button>
             </div>
         </div>
     </div>
@@ -47,17 +47,23 @@
             });
 
             socketCBOpenClose.on("listen", function (data) {
-                if (data){
+                if (data === true){
+                    console.log("if")
                     valueCBOpenClose = data;
                     $("#btn-cb-open").removeClass("btn-secondary");
                     $("#btn-cb-open").addClass("btn-success");
                     $("#btn-cb-close").removeClass("btn-danger");
                     $("#btn-cb-close").addClass("btn-secondary");
-                } else {
+                } else if (data === false){
                     valueCBOpenClose = data;
                     $("#btn-cb-open").removeClass("btn-success");
                     $("#btn-cb-open").addClass("btn-secondary");
                     $("#btn-cb-close").removeClass("btn-secondary");
+                    $("#btn-cb-close").addClass("btn-danger");
+                } else {
+                    $("#btn-cb-open").removeClass("btn-success").removeClass("btn-secondary");
+                    $("#btn-cb-open").addClass("btn-success");
+                    $("#btn-cb-close").removeClass("btn-danger").removeClass("btn-secondary");
                     $("#btn-cb-close").addClass("btn-danger");
                 }
             });
@@ -71,6 +77,12 @@
                 $("#btn-cb-close").removeClass("btn-secondary");
                 $("#btn-cb-close").addClass("btn-danger");
 
+                $("#cb-invalid-0").removeClass("btn-warning").removeClass("btn-secondary");
+                $("#cb-invalid-0").addClass("btn-secondary");
+
+                $("#cb-invalid-3").removeClass("btn-warning").removeClass("btn-secondary");
+                $("#cb-invalid-3").addClass("btn-secondary");
+
                 socketCBOpenClose.emit("update-data", true);
             });
 
@@ -80,7 +92,33 @@
                 $("#btn-cb-close").removeClass("btn-danger");
                 $("#btn-cb-close").addClass("btn-secondary");
 
+                $("#cb-invalid-0").removeClass("btn-warning").removeClass("btn-secondary");
+                $("#cb-invalid-0").addClass("btn-secondary");
+
+                $("#cb-invalid-3").removeClass("btn-warning").removeClass("btn-secondary");
+                $("#cb-invalid-3").addClass("btn-secondary");
+
                 socketCBOpenClose.emit("update-data", false);
+            });
+
+            $("#cb-invalid-0").on("click", function () {
+                $("#cb-invalid-0").removeClass("btn-secondary");
+                $("#cb-invalid-0").addClass("btn-warning");
+
+                $("#cb-invalid-3").removeClass("btn-warning");
+                $("#cb-invalid-3").addClass("btn-secondary");
+
+                socketCBOpenClose.emit("set-cb-invalid", 0);
+            });
+
+            $("#cb-invalid-3").on("click", function () {
+                $("#cb-invalid-3").removeClass("btn-secondary");
+                $("#cb-invalid-3").addClass("btn-warning");
+
+                $("#cb-invalid-0").removeClass("btn-warning");
+                $("#cb-invalid-0").addClass("btn-secondary");
+
+                socketCBOpenClose.emit("set-cb-invalid", 3);
             });
         });
     </script>

@@ -81,6 +81,28 @@ public class DatapointService {
         }
     }
 
+    public Integer updateCBInvalid(Integer value) throws Exception{
+        try {
+            String endpoint = "0.0.0.0";
+
+            Integer indexDBBI = 0;
+            DoubleBit doubleBitValue;
+            if (value == 0){
+                doubleBitValue = DoubleBit.INTERMEDIATE;
+            } else if (value == 3){
+                doubleBitValue = DoubleBit.INDETERMINATE;
+            } else {
+                doubleBitValue = DoubleBit.DETERMINED_OFF;
+            }
+            databaseService.updateValueDoubleBitBinaryInput(endpoint, indexDBBI, doubleBitValue);
+
+            return databaseService.getDoubleBitBinaryInput(endpoint, indexDBBI);
+        } catch (Exception e) {
+            log.error("error:{}", e.getMessage());
+            throw new Exception(e.getMessage());
+        }
+    }
+
     public Map<String, Object> getDataTapChanger() throws Exception {
         try {
             String endpoint = "0.0.0.0";

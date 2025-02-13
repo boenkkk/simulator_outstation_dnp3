@@ -82,6 +82,20 @@ public class DatabaseService {
         );
     }
 
+    public Integer getDoubleBitBinaryInput(String enpoint, Integer index){
+        AtomicReference<Integer> returnValue = new AtomicReference<>(0);
+        outstationsService.getoOutstationData(enpoint).ifPresent(
+            outstationData -> {
+                outstationData.getOutstation().transaction(
+                    db -> {
+                        returnValue.set(db.getDoubleBitBinaryInput(UShort.valueOf(index)).value.ordinal());
+                    }
+                );
+            }
+        );
+        return returnValue.get();
+    }
+
     public void updateValueDoubleBitBinaryInput(String outstationId, Integer index, DoubleBit value) {
         outstationsService.getoOutstationData(outstationId).ifPresent(
             outstationData -> {

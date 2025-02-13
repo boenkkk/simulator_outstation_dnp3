@@ -81,4 +81,17 @@ public class DatabaseService {
             }
         );
     }
+
+    public void updateValueDoubleBitBinaryInput(String outstationId, Integer index, DoubleBit value) {
+        outstationsService.getoOutstationData(outstationId).ifPresent(
+            outstationData -> {
+                outstationData.getOutstation().transaction(
+                    db -> {
+                        DoubleBitBinaryInput doubleBitBinaryInput = new DoubleBitBinaryInput(UShort.valueOf(index), value, new Flags(Flag.ONLINE), TimeUtil.now());
+                        db.updateDoubleBitBinaryInput(doubleBitBinaryInput, UpdateOptions.detectEvent());
+                    }
+                );
+            }
+        );
+    }
 }

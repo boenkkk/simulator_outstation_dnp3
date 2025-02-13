@@ -73,7 +73,7 @@ public class DatapointService {
             } else {
                 doubleBitValue = DoubleBit.DETERMINED_OFF;
             }
-            databaseService.updateValueDoubleBitBinaryInput(outstationId, indexDBBI, doubleBitValue);
+            databaseService.updateValueDoubleBitBinaryInput(endpoint, indexDBBI, doubleBitValue);
             return databaseService.getBinaryInput(endpoint, indexBI);
         } catch (Exception e) {
             log.error("error:{}", e.getMessage());

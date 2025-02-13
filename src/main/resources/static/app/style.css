@@ -56,3 +56,8 @@ body {
     justify-content: center;
     text-align: center;
 }
+.small-btn {
+    width: 3em;
+    height: 3em;
+    font-size: 0.75rem;
+}

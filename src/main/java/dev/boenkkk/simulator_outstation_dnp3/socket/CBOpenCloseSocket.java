@@ -32,7 +32,7 @@ public class CBOpenCloseSocket {
         cbOpenCloseNamespace.addDisconnectListener(onDisconnected());
         cbOpenCloseNamespace.addEventListener("get-data", Void.class, getData());
         cbOpenCloseNamespace.addEventListener("update-data", Boolean.class, updateData());
-        cbOpenCloseNamespace.addEventListener("set-cb-invalid", Integer.class, setCBInvalid());
+
     }
 
     @OnConnect
@@ -86,22 +86,6 @@ public class CBOpenCloseSocket {
                 socketIOService.sendMessageSelf(client, "listen", valueCBOpenClose);
 
                 log.info("namepace:{}, index:{}, valueCBOpenClose:{}", nameSpace, data, valueCBOpenClose);
-            } catch (Exception e) {
-                socketIOService.sendMessageSelf(client, "listen", e.getMessage());
-                log.error("error:{}", e.getMessage());
-            }
-        };
-    }
-
-    private DataListener<Integer> setCBInvalid(){
-        return (client, data, ackSender) -> {
-            try {
-                String nameSpace = client.getNamespace().getName();
-
-                Integer valueCBInvalid = datapointService.updateCBInvalid(data);
-                socketIOService.sendMessageSelf(client, "listen", valueCBInvalid);
-
-                log.info("namepace:{}, index:{}, valueCBInvalid:{}", nameSpace, data, valueCBInvalid);
             } catch (Exception e) {
                 socketIOService.sendMessageSelf(client, "listen", e.getMessage());
                 log.error("error:{}", e.getMessage());

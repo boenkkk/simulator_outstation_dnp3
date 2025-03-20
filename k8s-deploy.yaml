@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: simulator-outstation-dnp3
+    namespace: scada-grita
+spec:
+    replicas: 3
+    selector:
+        matchLabels:
+            app: simulator-outstation-dnp3
+    template:
+        metadata:
+            labels:
+                app: simulator-outstation-dnp3
+        spec:
+            imagePullSecrets:
+                -   name: harbor-secret
+            containers:
+                -   name: simulator-outstation-dnp3
+                    image: 1.2.3.4/scada/simulator_outstation_dnp3
+                    ports:
+                        -   containerPort: 20000
+                        -   containerPort: 47771
+                        -   containerPort: 47772
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: simulator-outstation-dnp3-service
+    namespace: scada-grita
+spec:
+    selector:
+        app: simulator-outstation-dnp3
+    type: NodePort  # Bisa diganti ClusterIP jika tidak perlu akses dari luar
+    ports:
+        -   name: dnp3-port-20000
+            protocol: TCP
+            port: 20000
+            targetPort: 20000
+            nodePort: 30770
+        -   name: dnp3-port-47771
+            protocol: TCP
+            port: 47771
+            targetPort: 47771
+            nodePort: 30771
+        -   name: dnp3-port-47772
+            protocol: TCP
+            port: 47772
+            targetPort: 47772
+            nodePort: 30772

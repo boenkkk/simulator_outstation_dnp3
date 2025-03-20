@@ -66,8 +66,16 @@
                 socketTapChanger.emit("get-data");
             });
 
+            // start interval for periodic data requests
+            let isEmittingTapChanger = false;
             setInterval(function() {
-                socketTapChanger.emit("get-data")
+                if (!isEmittingTapChanger) {
+                    isEmittingTapChanger = true;
+
+                    socketTapChanger.emit("get-data", () => {
+                        isEmittingTapChanger = false;
+                    });
+                }
             }, 1000);
 
             socketTapChanger.on("disconnect", function () {

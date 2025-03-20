@@ -102,6 +102,18 @@ public class DatabaseConfigImpl {
             AnalogInput analogInput = new AnalogInput(ushort(i), 0.0, flags, timeNow);
             db.updateAnalogInput(analogInput, UpdateOptions.detectEvent());
         }
+
+        for (int i = 0; i < 1; i++) {
+            // DOUBLE_BIT_BINARY_INPUT(5),
+            // 0 : Invalid / CB Close / Open / Invalid
+            DoubleBitBinaryInputConfig doubleBitBinaryInputConfig = new DoubleBitBinaryInputConfig()
+                .withStaticVariation(StaticDoubleBitBinaryInputVariation.GROUP3_VAR2)
+                .withEventVariation(EventDoubleBitBinaryInputVariation.GROUP4_VAR2);
+            db.addDoubleBitBinaryInput(ushort(i), EventClass.CLASS1, doubleBitBinaryInputConfig);
+
+            DoubleBitBinaryInput doubleBitBinaryInput = new DoubleBitBinaryInput(ushort(i), DoubleBit.DETERMINED_OFF, flags, timeNow);
+            db.updateDoubleBitBinaryInput(doubleBitBinaryInput, UpdateOptions.detectEvent());
+        }
     }
     // ANCHOR_END: database_init_function
 }

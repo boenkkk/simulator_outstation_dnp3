@@ -23,12 +23,22 @@
                         });
 
                         // start interval for periodic data requests
+                        let isEmitting = false;
                         setInterval(function () {
-                            if (paramMeasurement) {
-                                paramMeasurement.forEach(function (param) {
-                                    socketMeasurement.emit("get-data", param);
+                            if (!isEmitting) {
+                                isEmitting = true;
+                                let completedParams = 0;
+
+                                paramMeasurement.forEach(function(param) {
+                                    socketMeasurement.emit("get-data", param, () => {
+                                    completedParams++;
+
+                                    if (completedParams === paramMeasurement.length) {
+                                        isEmitting = false;
+                                    }
                                 });
-                            }
+                            });
+                          }
                         }, 1000);
                     }
                 },

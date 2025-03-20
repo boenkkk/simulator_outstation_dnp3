@@ -2,6 +2,7 @@ package dev.boenkkk.simulator_outstation_dnp3.service;
 
 import dev.boenkkk.simulator_outstation_dnp3.model.MeasurementRequestModel;
 import dev.boenkkk.simulator_outstation_dnp3.scheduler.SchedulerTask;
+import io.stepfunc.dnp3.DoubleBit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -64,6 +65,15 @@ public class DatapointService {
 
             Integer indexBI = 1;
             databaseService.updateValueBinaryInput(endpoint, indexBI, value);
+
+            Integer indexDBBI = 0;
+            DoubleBit doubleBitValue;
+            if (value){
+                doubleBitValue = DoubleBit.DETERMINED_ON;
+            } else {
+                doubleBitValue = DoubleBit.DETERMINED_OFF;
+            }
+            databaseService.updateValueDoubleBitBinaryInput(endpoint, indexDBBI, doubleBitValue);
             return databaseService.getBinaryInput(endpoint, indexBI);
         } catch (Exception e) {
             log.error("error:{}", e.getMessage());

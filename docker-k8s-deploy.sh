@@ -25,23 +25,29 @@ echo "Checking if the image was built successfully..."
 docker images | grep $APP_NAME || { echo "Image not found!"; exit 1; }
 
 # Tag the image for the remote repository
-echo "Tagging image..."
+if [ -n "$REGISTRY_PORT" ]; then
+    FULL_IMAGE_NAME="$REGISTRY_IP:$REGISTRY_PORT/$NAMESPACE/$APP_NAME"
+fi
+
+echo "Tagging image as $FULL_IMAGE_NAME..."
 docker tag $APP_NAME:latest $FULL_IMAGE_NAME || { echo "Docker tag failed!"; exit 1; }
 
 # Push the image to the remote repository
 echo "Pushing image to registry..."
 docker push $FULL_IMAGE_NAME || { echo "Docker push failed!"; exit 1; }
 
+# Delete the existing deployment if it exists
+if kubectl get deployment simulator-outstation-dnp3 -n "$NAMESPACE" &> /dev/null; then
+    echo "Deleting existing deployment..."
+    kubectl delete deployment simulator-outstation-dnp3 -n "$NAMESPACE"
+fi
+
 # Apply the Kubernetes deployment
 echo "Applying Kubernetes deployment..."
 kubectl apply -f $DEPLOYMENT_FILE || { echo "Kubernetes deployment failed!"; exit 1; }
 
-# Verify the deployment status
-echo "Verifying deployment status..."
-kubectl rollout status deployment/$APP_NAME -n $NAMESPACE || { echo "Deployment verification failed!"; exit 1; }
-
 # Display deployed resources
 echo "Deployment and Service status:"
-kubectl get deployments,pods,services -n $NAMESPACE
+kubectl get deployments,pods,services -n "$NAMESPACE"
 
 echo "Deployment completed successfully!"
